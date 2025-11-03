@@ -1,0 +1,250 @@
+﻿ ساختار کامل و دقیق پروژه API (آپدیت شده)
+text
+Inventory_Api/
+├── Controllers/
+│   ├── AuthController.cs
+│   ├── UsersController.cs
+│   ├── ProductsController.cs
+│   ├── WarehousesController.cs
+│   ├── CostCentersController.cs
+│   ├── InventoryController.cs
+│   ├── AuditController.cs
+│   ├── ReportsController.cs
+│   ├── ProfileController.cs
+│   ├── BrandsController.cs
+│   ├── ProductBrandsController.cs
+│   ├── WarehouseAccessController.cs
+│   ├── StockOperationsController.cs
+│   └── TestController.cs
+├── Models/
+│   ├── Entities/
+│   │   ├── User.cs
+│   │   ├── Role.cs
+│   │   ├── Product.cs
+│   │   ├── Brand.cs
+│   │   ├── ProductBrand.cs
+│   │   ├── Warehouse.cs
+│   │   ├── Inventory.cs
+│   │   ├── CostCenter.cs
+│   │   ├── WarehouseAccess.cs
+│   │   ├── AuditLog.cs
+│   │   └── StockOperation.cs
+│   ├── DTOs/
+│   │   ├── UserDto.cs
+│   │   ├── ProductDto.cs
+│   │   ├── WarehouseDto.cs
+│   │   ├── CostCenterDto.cs
+│   │   ├── InventoryDto.cs
+│   │   ├── AuditLogDto.cs
+│   │   ├── ReportDto.cs
+│   │   ├── LoginDto.cs
+│   │   ├── ProfileDto.cs
+│   │   ├── BrandDto.cs
+│   │   ├── ProductBrandDto.cs
+│   │   ├── WarehouseAccessDto.cs
+│   │   └── StockOperationDto.cs
+│   └── ViewModels/
+├── Data/
+│   ├── ApplicationDbContext.cs
+│   └── DbInitializer.cs
+├── Services/
+│   ├── PasswordHasherService.cs
+│   ├── JwtService.cs
+│   └── AuditService.cs
+├── Helpers/
+│   ├── Roles.cs
+│   └── AuthorizeRoleAttribute.cs
+├── Middlewares/
+│   └── UserExpiryMiddleware.cs
+├── Interfaces/
+├── Repositories/
+├── Migrations/
+├── Program.cs
+├── Startup.cs
+├── appsettings.json
+└── Inventory_Api.csproj
+📋 لیست کامل کنترلرها و endpointها
+🔐 Authentication & Authorization
+POST /api/Auth/login - ورود به سیستم
+
+POST /api/Auth/verify - بررسی توکن
+
+👥 User Management
+GET /api/Users - دریافت لیست کاربران (با فیلتر نقش)
+
+GET /api/Users/{id} - دریافت کاربر خاص
+
+POST /api/Users - ایجاد کاربر جدید
+
+PUT /api/Users/{id} - ویرایش کاربر
+
+DELETE /api/Users/{id} - حذف کاربر (فقط ادمین)
+
+PUT /api/Users/{id}/deactivate - غیرفعال کردن کاربر
+
+📦 Product Management
+GET /api/Products - دریافت لیست محصولات
+
+GET /api/Products/{id} - دریافت محصول خاص
+
+POST /api/Products - ایجاد محصول جدید
+
+PUT /api/Products/{id} - ویرایش محصول
+
+DELETE /api/Products/{id} - حذف محصول
+
+GET /api/Products/search/{name} - جستجوی محصولات
+
+GET /api/Products/low-stock - محصولات با موجودی کم
+
+🏭 Warehouse Management
+GET /api/Warehouses - دریافت لیست انبارها
+
+GET /api/Warehouses/{id} - دریافت انبار خاص
+
+POST /api/Warehouses - ایجاد انبار جدید
+
+PUT /api/Warehouses/{id} - ویرایش انبار
+
+DELETE /api/Warehouses/{id} - حذف انبار
+
+💰 Cost Center Management
+GET /api/CostCenters - دریافت لیست مراکز هزینه
+
+POST /api/CostCenters - ایجاد مرکز هزینه جدید
+
+PUT /api/CostCenters/{id} - ویرایش مرکز هزینه
+
+DELETE /api/CostCenters/{id} - حذف مرکز هزینه
+
+📊 Inventory Management
+GET /api/Inventory - مشاهده موجودی
+
+POST /api/Inventory/adjust - تنظیم موجودی
+
+GET /api/Inventory/warehouse/{warehouseId} - موجودی یک انبار خاص
+
+🏷️ Brand Management
+GET /api/Brands - دریافت لیست برندها
+
+POST /api/Brands - ایجاد برند جدید
+
+PUT /api/Brands/{id} - ویرایش برند
+
+DELETE /api/Brands/{id} - حذف برند
+
+🔗 Product-Brand Management
+POST /api/ProductBrands - اضافه کردن برند به محصول
+
+GET /api/ProductBrands/product/{productId} - دریافت برندهای یک محصول
+
+DELETE /api/ProductBrands/{id} - حذف ارتباط برند و محصول
+
+🔐 Warehouse Access Management
+GET /api/WarehouseAccess/user/{userId} - دسترسی‌های یک کاربر
+
+POST /api/WarehouseAccess - ایجاد دسترسی جدید
+
+PUT /api/WarehouseAccess/{id} - ویرایش دسترسی
+
+DELETE /api/WarehouseAccess/{id} - حذف دسترسی
+
+GET /api/WarehouseAccess/my-access - دسترسی‌های من (برای انباردار)
+
+📦 Stock Operations
+POST /api/StockOperations/issue - خروج کالا از انبار
+
+POST /api/StockOperations/receive - ورود کالا به انبار
+
+GET /api/StockOperations - تاریخچه عملیات انبار
+
+📈 Reports
+GET /api/Reports/inventory-summary - خلاصه موجودی
+
+GET /api/Reports/warehouse-inventory - موجودی انبارها
+
+GET /api/Reports/brand-summary - خلاصه برندها
+
+GET /api/Reports/low-stock-alerts - هشدارهای موجودی کم
+
+GET /api/Reports/user-activity - فعالیت کاربران
+
+GET /api/Reports/brand-inventory - موجودی بر اساس برند
+
+GET /api/Reports/product-brand-summary - خلاصه محصول-برند
+
+📝 Audit & Logs
+GET /api/Audit - دریافت لاگ‌ها
+
+GET /api/Audit/users/{userId} - لاگ‌های یک کاربر
+
+GET /api/Audit/products/{productId} - لاگ‌های یک محصول
+
+GET /api/Audit/warehouses/{warehouseId} - لاگ‌های یک انبار
+
+👤 Profile
+GET /api/Profile - پروفایل کاربر جاری
+
+PUT /api/Profile - ویرایش پروفایل
+
+GET /api/Profile/permissions - دسترسی‌های کاربر جاری
+
+🧪 Test
+GET /api/Test - تست سلامت API
+
+GET /api/Test/auth-test - تست احراز هویت
+
+GET /api/Test/admin-test - تست دسترسی ادمین
+
+🔧 سرویس‌ها و کامپوننت‌ها
+Services:
+PasswordHasherService - هش کردن و بررسی رمز عبور
+
+JwtService - تولید و مدیریت توکن JWT
+
+AuditService - مدیریت لاگ و تاریخچه تغییرات
+
+Helpers:
+Roles - تعریف نقش‌ها و helper methods
+
+AuthorizeRoleAttribute - attribute برای authorization
+
+Middlewares:
+UserExpiryMiddleware - بررسی تاریخ انقضای کاربران
+
+Data:
+ApplicationDbContext - context اصلی دیتابیس
+
+DbInitializer - مقداردهی اولیه دیتابیس
+
+✅ بررسی نهایی با شرح پروژه:
+مورد 1: ✅ کامل
+ذخیره اطلاعات کالاها با تمام فیلدهای مورد نیاز
+
+مورد 2: ✅ کامل
+سیستم چند برندی کامل + گزارش‌گیری موجودی هر برند
+
+مورد 3: ✅ کامل
+مدیریت چند انباری + مراکز هزینه برای خروج کالا
+
+مورد 4: ✅ کامل
+5 سطح کاربری با دسترسی‌های دقیق مطابق شرح
+
+مورد 5: ✅ کامل
+ناظر فقط مشاهده‌گر بدون دسترسی تغییر
+
+مورد 6: ✅ کامل
+محدودیت‌های کاربر ارشد کاملاً رعایت شده
+
+مورد 7: ✅ کامل
+تاریخچه تغییرات کامل با تمام جزئیات
+
+مورد 8: ✅ کامل
+جدول کاربران با تمام فیلدهای مورد نیاز
+
+مورد 9-12: ✅ کامل
+دسترسی‌های هر نقش کاملاً پیاده‌سازی شده
+
+مورد 13: ✅ کامل
+سیستم Audit کامل برای ثبت تمام تغییرات
+

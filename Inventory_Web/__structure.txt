@@ -1,0 +1,60 @@
+﻿🎯 انتخاب‌های فنی:
+ذخیره توکن: HttpOnly Cookie (امن‌ترین روش)
+
+CSS Framework: Bootstrap 5 + RTL + Font Awesome
+
+State Management: Session Storage + Real-time API Calls
+
+زبان: فارسی با پشتیبانی RTL
+
+طرح: AdminLTE 3 (پروفشنال و ریسپانسیو)
+
+📁 ساختار نهایی پروژه:
+text
+Inventory_Web/
+├── Controllers/
+│   ├── HomeController.cs
+│   ├── AuthController.cs
+│   ├── ProductsController.cs
+│   ├── WarehousesController.cs
+│   ├── UsersController.cs
+│   ├── InventoryController.cs
+│   └── ReportsController.cs
+├── Models/
+│   ├── ViewModels/
+│   │   ├── Auth/
+│   │   ├── Products/
+│   │   ├── Users/
+│   │   └── Shared/
+│   └── ApiModels/
+├── Services/
+│   ├── ApiService.cs
+│   ├── AuthService.cs
+│   ├── TokenService.cs
+│   ├── HttpService.cs
+│   └── NotificationService.cs
+├── Views/
+│   ├── Shared/
+│   │   ├── _Layout.cshtml
+│   │   ├── _LoginLayout.cshtml
+│   │   ├── _Sidebar.cshtml
+│   │   └── _Notification.cshtml
+│   ├── Auth/
+│   ├── Dashboard/
+│   ├── Products/
+│   ├── Warehouses/
+│   ├── Users/
+│   ├── Inventory/
+│   └── Reports/
+├── wwwroot/
+│   ├── css/
+│   ├── js/
+│   ├── lib/
+│   └── images/
+├── Middlewares/
+│   ├── JwtMiddleware.cs
+│   └── RoleRedirectMiddleware.cs
+└── Utilities/
+    ├── Constants.cs
+    ├── RoleHelper.cs
+    └── ExtensionMethods.cs
