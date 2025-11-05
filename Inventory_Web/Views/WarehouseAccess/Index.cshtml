@@ -1,0 +1,70 @@
+﻿@{
+    ViewData["Title"] = "مدیریت دسترسی انبارداران";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var storekeepers = ViewBag.Storekeepers as List<Inventory_Web.Controllers.StorekeeperUserDto> ?? new List<Inventory_Web.Controllers.StorekeeperUserDto>();
+}
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="card-title">مدیریت دسترسی انبارداران</h3>
+            <div>
+                <span class="badge bg-primary ms-2">@storekeepers.Count انباردار</span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                @TempData["Error"]
+            </div>
+        }
+
+        @if (storekeepers.Count == 0)
+        {
+            <div class="alert alert-warning text-center">
+                <i class="fas fa-users fa-2x mb-3"></i>
+                <h5>هیچ انبارداری یافت نشد</h5>
+                <p class="mb-0">کاربری با نقش انباردار در سیستم وجود ندارد.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>نام کاربر</th>
+                            <th>کد پرسنلی</th>
+                            <th>نقش</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in storekeepers)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@user.FullName</strong>
+                                </td>
+                                <td>@user.PersonnelCode</td>
+                                <td>
+                                    <span class="badge bg-info">@user.RoleName</span>
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("UserAccess", new { userId = user.Id })"
+                                       class="btn btn-primary btn-sm">
+                                        <i class="fas fa-cog"></i> مدیریت دسترسی
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

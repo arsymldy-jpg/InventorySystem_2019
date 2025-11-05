@@ -43,6 +43,39 @@ namespace Inventory_Api.Controllers
             return Ok(costCenters);
         }
 
+        // GET: api/CostCenters/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CostCenterDto>> GetCostCenter(int id)
+        {
+            try
+            {
+                var costCenter = await _context.CostCenters
+                    .Where(cc => cc.Id == id && cc.IsActive)
+                    .Select(cc => new CostCenterDto
+                    {
+                        Id = cc.Id,
+                        Name = cc.Name,
+                        Description = cc.Description,
+                        IsActive = cc.IsActive,
+                        CreatedDate = cc.CreatedDate,
+                        CreatedBy = cc.CreatedBy
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (costCenter == null)
+                {
+                    return NotFound();
+                }
+
+                return costCenter;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ خطا در دریافت مرکز هزینه {id}: {ex.Message}");
+                return StatusCode(500, "خطا در سرور");
+            }
+        }
+
         // POST: api/CostCenters
         [HttpPost]
         public async Task<ActionResult<CostCenterDto>> CreateCostCenter(CreateCostCenterDto createCostCenterDto)

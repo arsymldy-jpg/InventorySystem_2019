@@ -1,0 +1,254 @@
+﻿@model Inventory_Web.Controllers.UserAccessManagementViewModel
+@{
+    ViewData["Title"] = "مدیریت دسترسی انباردار";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="card-title">مدیریت دسترسی انباردار: @Model.UserName</h3>
+            <div>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-right"></i> بازگشت به لیست
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- اطلاعات کاربر -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="info-box">
+                    <h5>اطلاعات کاربر</h5>
+                    <div class="detail-row">
+                        <div class="detail-label">نام:</div>
+                        <div class="detail-value">@Model.UserName</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">کد پرسنلی:</div>
+                        <div class="detail-value">@Model.PersonnelCode</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                @TempData["Error"]
+            </div>
+        }
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                @TempData["Success"]
+            </div>
+        }
+
+        <!-- فرم افزودن دسترسی جدید -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">افزودن دسترسی جدید</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <input type="hidden" name="UserId" value="@Model.UserId" />
+
+                    <div class="row">
+                        <!-- انبار - سطر اول -->
+                        <div class="col-md-12 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">انبار</label>
+                                <select name="WarehouseId" class="form-control" required style="max-width: 300px;">
+                                    <option value="">-- انتخاب انبار --</option>
+                                    @foreach (var warehouse in Model.AllWarehouses)
+                                    {
+                                        <option value="@warehouse.Id">@warehouse.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- چک‌باکس‌ها - سطر دوم -->
+                        <div class="col-md-12">
+                            <div class="d-flex gap-4 align-items-center">
+                                <!-- چک‌باکس مشاهده -->
+                                <div class="form-check">
+                                    <label class="form-check-label" for="canView">مشاهده</label>
+                                    <input name="CanView" class="form-check-input" type="checkbox" id="canView" checked>
+                                </div>
+
+                                <!-- چک‌باکس ویرایش -->
+                                <div class="form-check">
+                                    <label class="form-check-label" for="canEdit">ویرایش</label>
+                                    <input name="CanEdit" class="form-check-input" type="checkbox" id="canEdit">
+                                </div>
+
+                                <!-- دکمه افزودن -->
+                                <div>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-plus"></i> افزودن
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- لیست دسترسی‌های فعلی -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">دسترسی‌های فعلی</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.CurrentAccess.Count == 0)
+                {
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-warehouse fa-2x mb-3"></i>
+                        <h5>هیچ دسترسی تعریف نشده است</h5>
+                        <p class="mb-0">هنوز دسترسی به انباری برای این کاربر تعریف نشده است.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>انبار</th>
+                                    <th>مشاهده</th>
+                                    <th>ویرایش</th>
+                                    <th>عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var access in Model.CurrentAccess)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@access.WarehouseName</strong>
+                                        </td>
+                                        <td>
+                                            @if (access.CanView)
+                                            {
+                                                <span class="badge bg-success">فعال</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">غیرفعال</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (access.CanEdit)
+                                            {
+                                                <span class="badge bg-success">فعال</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">غیرفعال</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <!-- فرم به روزرسانی -->
+                                                <form asp-action="Update" method="post" class="d-inline">
+                                                    <input type="hidden" name="AccessId" value="@access.Id" />
+                                                    <input type="hidden" name="UserId" value="@Model.UserId" />
+                                                    <input type="hidden" name="CanView" value="@(!access.CanView)" />
+                                                    <input type="hidden" name="CanEdit" value="@access.CanEdit" />
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-outline-@(access.CanView ? "warning" : "success") btn-sm"
+                                                            title="@(access.CanView ? "غیرفعال کردن مشاهده" : "فعال کردن مشاهده")">
+                                                        <i class="fas fa-eye@(access.CanView ? "" : "-slash")"></i>
+                                                    </button>
+                                                </form>
+
+                                                <form asp-action="Update" method="post" class="d-inline">
+                                                    <input type="hidden" name="AccessId" value="@access.Id" />
+                                                    <input type="hidden" name="UserId" value="@Model.UserId" />
+                                                    <input type="hidden" name="CanView" value="@access.CanView" />
+                                                    <input type="hidden" name="CanEdit" value="@(!access.CanEdit)" />
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-outline-@(access.CanEdit ? "warning" : "success") btn-sm"
+                                                            title="@(access.CanEdit ? "غیرفعال کردن ویرایش" : "فعال کردن ویرایش")">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </form>
+
+                                                <!-- فرم حذف -->
+                                                <form asp-action="Delete" method="post" class="d-inline"
+                                                      onsubmit="return confirm('آیا از حذف این دسترسی اطمینان دارید؟');">
+                                                    <input type="hidden" name="id" value="@access.Id" />
+                                                    <input type="hidden" name="userId" value="@Model.UserId" />
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="حذف">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .info-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+    }
+
+    .detail-row {
+        display: flex;
+        align-items: center;
+        padding: 5px 0;
+    }
+
+    .detail-label {
+        flex: 0 0 120px;
+        font-weight: bold;
+        color: #495057;
+    }
+
+    .detail-value {
+        flex: 1;
+        color: #212529;
+    }
+
+    /* استایل برای چک‌باکس‌ها */
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 0;
+    }
+
+    .form-check-input {
+        margin-left: 0;
+        margin-right: 8px;
+    }
+
+    .form-check-label {
+        margin-bottom: 0;
+        font-weight: 500;
+    }
+
+    /* استایل برای سطرها */
+    .align-items-end {
+        align-items: flex-end;
+    }
+</style>
