@@ -45,6 +45,31 @@ namespace Inventory_Api.Controllers
             return Ok(brands);
         }
 
+        // GET: api/Brands/5 - دریافت یک برند خاص
+        [HttpGet("{id}")]
+        //[AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper, Roles.Storekeeper, Roles.Viewer)]
+        public async Task<ActionResult<BrandDto>> GetBrand(int id)
+        {
+            var brand = await _context.Brands
+                .Where(b => b.Id == id && b.IsActive)
+                .Select(b => new BrandDto
+                {
+                    Id = b.Id,
+                    Name = b.Name,
+                    Description = b.Description,
+                    IsActive = b.IsActive
+                })
+                .FirstOrDefaultAsync();
+
+            if (brand == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(brand);
+        }
+
+
         // POST: api/Brands
         [HttpPost]
         public async Task<ActionResult<BrandDto>> CreateBrand(CreateBrandDto createBrandDto)

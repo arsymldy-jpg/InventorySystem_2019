@@ -1,0 +1,80 @@
+﻿@model Inventory_Web.Controllers.BrandDto
+@{
+    ViewData["Title"] = "جزئیات برند";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">جزئیات برند</h3>
+            </div>
+            <div class="card-body">
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger">@TempData["Error"]</div>
+                }
+
+                <div class="details-container">
+                    <div class="detail-row">
+                        <div class="detail-label">نام برند:</div>
+                        <div class="detail-value">@Model.Name</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">توضیحات:</div>
+                        <div class="detail-value">@Model.Description</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">وضعیت:</div>
+                        <div class="detail-value">
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">فعال</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">غیرفعال</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-right"></i> بازگشت به لیست
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .details-container {
+        max-width: 600px;
+    }
+
+    .detail-row {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+    .detail-label {
+        flex: 0 0 150px;
+        font-weight: bold;
+        color: #495057;
+    }
+
+    .detail-value {
+        flex: 1;
+        color: #212529;
+    }
+</style>

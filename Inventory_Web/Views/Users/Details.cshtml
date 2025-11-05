@@ -1,0 +1,135 @@
+﻿@model Inventory_Web.Controllers.UserDisplayDto
+@{
+    ViewData["Title"] = "جزئیات کاربر";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">جزئیات کاربر</h3>
+            </div>
+            <div class="card-body">
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger">@TempData["Error"]</div>
+                }
+
+                <div class="details-container">
+                    <div class="detail-row">
+                        <div class="detail-label">کد پرسنلی:</div>
+                        <div class="detail-value">@Model.PersonnelCode</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">نام:</div>
+                        <div class="detail-value">@Model.FirstName</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">نام خانوادگی:</div>
+                        <div class="detail-value">@Model.LastName</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">موبایل:</div>
+                        <div class="detail-value">@Model.Mobile</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">ایمیل:</div>
+                        <div class="detail-value">@Model.Email</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">نقش:</div>
+                        <div class="detail-value">
+                            <span class="badge bg-info">@Model.RoleName</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">وضعیت:</div>
+                        <div class="detail-value">
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">فعال</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">غیرفعال</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">تاریخ انقضا:</div>
+                        <div class="detail-value">
+                            @if (!string.IsNullOrEmpty(Model.ExpiryDate))
+                            {
+                                @Model.ExpiryDate
+                            }
+                            else
+                            {
+                                <span class="text-muted">---</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">تاریخ ایجاد:</div>
+                        <div class="detail-value">@Model.CreatedDate</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">آخرین ورود:</div>
+                        <div class="detail-value">
+                            @if (!string.IsNullOrEmpty(Model.LastLogin))
+                            {
+                                @Model.LastLogin
+                            }
+                            else
+                            {
+                                <span class="text-muted">---</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-right"></i> بازگشت به لیست
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .details-container {
+        max-width: 600px;
+    }
+
+    .detail-row {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+    .detail-label {
+        flex: 0 0 150px;
+        font-weight: bold;
+        color: #495057;
+    }
+
+    .detail-value {
+        flex: 1;
+        color: #212529;
+    }
+</style>

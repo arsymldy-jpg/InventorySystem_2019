@@ -1,0 +1,100 @@
+﻿@model List<Inventory_Web.Controllers.BrandDto>
+@{
+    ViewData["Title"] = "مدیریت برندها";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="card-title">لیست برندها</h3>
+            <div>
+                @if (User.IsInRole("Admin") || User.IsInRole("SeniorUser") || User.IsInRole("SeniorStorekeeper"))
+                {
+                    <a href="@Url.Action("Create")" class="btn btn-success">
+                        <i class="fas fa-plus"></i> ایجاد برند جدید
+                    </a>
+                }
+                <span class="badge bg-primary ms-2">@Model.Count برند</span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                @TempData["Error"]
+            </div>
+        }
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                @TempData["Success"]
+            </div>
+        }
+
+        @if (Model.Count == 0)
+        {
+            <div class="alert alert-warning text-center">
+                <i class="fas fa-tags fa-2x mb-3"></i>
+                <h5>هیچ برندی یافت نشد</h5>
+                <p class="mb-0">برندی در سیستم ثبت نشده است.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>نام برند</th>
+                            <th>توضیحات</th>
+                            <th>وضعیت</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var brand in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@brand.Name</strong>
+                                </td>
+                                <td>@brand.Description</td>
+                                <td>
+                                    @if (brand.IsActive)
+                                    {
+                                        <span class="badge bg-success">فعال</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">غیرفعال</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("Details", new { id = brand.Id })"
+                                           class="btn btn-info" title="مشاهده جزئیات">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+
+                                        @if (User.IsInRole("Admin") || User.IsInRole("SeniorUser") || User.IsInRole("SeniorStorekeeper"))
+                                        {
+                                            <a href="@Url.Action("Edit", new { id = brand.Id })"
+                                               class="btn btn-warning" title="ویرایش">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,106 @@
+﻿@model Inventory_Web.Controllers.CreateUserDto
+@{
+    ViewData["Title"] = "ایجاد کاربر جدید";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">ایجاد کاربر جدید</h3>
+    </div>
+    <div class="card-body">
+        @if (TempData["Error"] != null)
+        {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            @TempData["Error"]
+        </div>
+        }
+
+        <form asp-action="Create" method="post">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="FirstName" class="form-label">نام *</label>
+                        <input asp-for="FirstName" class="form-control" required />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="LastName" class="form-label">نام خانوادگی *</label>
+                        <input asp-for="LastName" class="form-control" required />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="PersonnelCode" class="form-label">کد پرسنلی *</label>
+                        <input asp-for="PersonnelCode" class="form-control" required />
+                        <span asp-validation-for="PersonnelCode" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Mobile" class="form-label">موبایل</label>
+                        <input asp-for="Mobile" class="form-control" />
+                        <span asp-validation-for="Mobile" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Email" class="form-label">ایمیل</label>
+                        <input asp-for="Email" type="email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Password" class="form-label">رمز عبور *</label>
+                        <input asp-for="Password" type="password" class="form-control" required />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="RoleId" class="form-label">نقش کاربر *</label>
+                        <select asp-for="RoleId" class="form-control" required>
+                            <option value="">-- انتخاب نقش --</option>
+                            @foreach (var role in ViewBag.AvailableRoles)
+                            {
+                            <option value="@role.Id">@role.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="RoleId" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ExpiryDate" class="form-label">تاریخ انقضا</label>
+                        <input asp-for="ExpiryDate" type="date" class="form-control" />
+                        <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                        <small class="text-muted">برای کاربران عادی اجباری است</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-user-plus"></i> ایجاد کاربر
+                </button>
+                <a href="@Url.Action(" Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-right"></i> بازگشت
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

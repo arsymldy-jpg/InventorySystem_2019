@@ -49,31 +49,60 @@ namespace Inventory_Web.Services
             return client;
         }
 
+        //public async Task<T> GetAsync<T>(string endpoint, bool requiresAuth = true)
+        //{
+        //    try
+        //    {
+        //        using var client = CreateHttpClient(requiresAuth);
+        //        Console.WriteLine($"🔍 ارسال درخواست GET به: {endpoint}");
+
+        //        var response = await client.GetAsync(endpoint);
+        //        Console.WriteLine($"📡 وضعیت پاسخ: {response.StatusCode}");
+
+        //        if (!response.IsSuccessStatusCode)
+        //        {
+        //            Console.WriteLine($"❌ خطای HTTP: {response.StatusCode}");
+        //            var errorContent = await response.Content.ReadAsStringAsync();
+        //            Console.WriteLine($"❌ محتوای خطا: {errorContent}");
+        //        }
+
+        //        return await HandleResponse<T>(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"💥 خطا در GetAsync: {ex.Message}");
+        //        throw;
+        //    }
+        //}
+
+
         public async Task<T> GetAsync<T>(string endpoint, bool requiresAuth = true)
         {
             try
             {
                 using var client = CreateHttpClient(requiresAuth);
-                Console.WriteLine($"🔍 ارسال درخواست GET به: {endpoint}");
+                System.Console.WriteLine($"🔍 ارسال درخواست GET به: {endpoint}");
 
                 var response = await client.GetAsync(endpoint);
-                Console.WriteLine($"📡 وضعیت پاسخ: {response.StatusCode}");
+                System.Console.WriteLine($"📡 وضعیت پاسخ: {response.StatusCode}");
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"❌ خطای HTTP: {response.StatusCode}");
+                    System.Console.WriteLine($"❌ خطای HTTP: {response.StatusCode}");
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"❌ محتوای خطا: {errorContent}");
+                    System.Console.WriteLine($"❌ محتوای خطا: {errorContent}");
                 }
 
                 return await HandleResponse<T>(response);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"💥 خطا در GetAsync: {ex.Message}");
+                System.Console.WriteLine($"💥 خطا در GetAsync: {ex.Message}");
+                System.Console.WriteLine($"💥 StackTrace: {ex.StackTrace}");
                 throw;
             }
         }
+
 
         public async Task<T> PostAsync<T>(string endpoint, object data, bool requiresAuth = true)
         {

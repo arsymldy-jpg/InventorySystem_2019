@@ -252,6 +252,15 @@
                     <span>انبارها</span>
                 </a>
             </li>
+            @if (User.IsInRole("Admin") || User.IsInRole("SeniorUser") || User.IsInRole("SeniorStorekeeper")) // || User.IsInRole("Storekeeper") || User.IsInRole("Viewer"))
+            {
+                <li class="nav-item">
+                    <a href="/Brands" class="nav-link">
+                        <i class="fas fa-tags"></i>
+                        <span>برندها</span>
+                    </a>
+                </li>
+            }
             <li class="nav-item">
                 <a href="/Reports" class="nav-link">
                     <i class="fas fa-chart-bar"></i>
