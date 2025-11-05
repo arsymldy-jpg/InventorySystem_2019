@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inventory_Web.Controllers
@@ -77,39 +78,56 @@ namespace Inventory_Web.Controllers
         // POST: WarehouseAccess/Create - ایجاد دسترسی جدید
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateAccessViewModel model)
+        public async Task<IActionResult> Create(int UserId, int WarehouseId, bool CanEdit = false, bool CanView = true)
         {
             try
             {
-                if (ModelState.IsValid)
-                {
-                    var createDto = new
-                    {
-                        UserId = model.UserId,
-                        WarehouseId = model.WarehouseId,
-                        CanEdit = model.CanEdit,
-                        CanView = model.CanView
-                    };
+                System.Console.WriteLine($"🔍 شروع ایجاد دسترسی برای کاربر: {UserId}");
+                System.Console.WriteLine($"📦 انبار: {WarehouseId}, مشاهده: {CanView}, ویرایش: {CanEdit}");
 
-                    var result = await _apiService.PostAsync<object>("api/WarehouseAccess", createDto);
-                    if (result != null)
-                    {
-                        TempData["Success"] = "دسترسی با موفقیت ایجاد شد";
-                    }
-                    else
-                    {
-                        TempData["Error"] = "خطا در ایجاد دسترسی";
-                    }
+                // اعتبارسنجی دستی
+                if (UserId <= 0 || WarehouseId <= 0)
+                {
+                    TempData["Error"] = "اطلاعات وارد شده معتبر نیست";
+                    return RedirectToAction("UserAccess", new { userId = UserId });
                 }
-                return RedirectToAction("UserAccess", new { userId = model.UserId });
+
+                var createDto = new
+                {
+                    UserId = UserId,
+                    WarehouseId = WarehouseId,
+                    CanEdit = CanEdit,
+                    CanView = CanView
+                };
+
+                System.Console.WriteLine("🔍 ارسال درخواست به API...");
+                var result = await _apiService.PostAsync<object>("api/WarehouseAccess", createDto);
+
+                System.Console.WriteLine($"📦 پاسخ API: {result != null}");
+
+                if (result != null)
+                {
+                    System.Console.WriteLine("✅ دسترسی با موفقیت ایجاد شد");
+                    TempData["Success"] = "دسترسی با موفقیت ایجاد شد";
+                }
+                else
+                {
+                    System.Console.WriteLine("❌ پاسخ null از API");
+                    TempData["Error"] = "خطا در ایجاد دسترسی - پاسخ از API دریافت نشد";
+                }
+
+                return RedirectToAction("UserAccess", new { userId = UserId });
             }
             catch (System.Exception ex)
             {
                 System.Console.WriteLine($"❌ خطا در ایجاد دسترسی: {ex.Message}");
-                TempData["Error"] = "خطا در ایجاد دسترسی";
-                return RedirectToAction("UserAccess", new { userId = model.UserId });
+                System.Console.WriteLine($"❌ StackTrace: {ex.StackTrace}");
+
+                TempData["Error"] = $"خطا در ایجاد دسترسی: {ex.Message}";
+                return RedirectToAction("UserAccess", new { userId = UserId });
             }
         }
+
 
         // POST: WarehouseAccess/Update - به روزرسانی دسترسی
         [HttpPost]
@@ -177,9 +195,16 @@ namespace Inventory_Web.Controllers
     public class StorekeeperUserDto
     {
         public int Id { get; set; }
-        public string FullName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string PersonnelCode { get; set; }
         public string RoleName { get; set; }
+
+        // افزودن property محاسبه شده برای نام کامل
+        public string FullName
+        {
+            get { return $"{FirstName} {LastName}"; }
+        }
     }
 
     public class UserWarehouseAccessDto
