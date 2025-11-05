@@ -1,48 +1,398 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Inventory_Web</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <title>@ViewData["Title"] - سیستم انبارداری</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap RTL -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-rtl@5.3.0/dist/css/bootstrap-rtl.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    @RenderSection("Styles", required: false)
+
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+
+        /* RTL Layout */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - سمت راست */
+        .sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: white;
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background-color: rgba(0,0,0,0.2);
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+            .sidebar-header .brand {
+                color: white;
+                text-decoration: none;
+                font-size: 1.5rem;
+                font-weight: bold;
+            }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .sidebar-menu li {
+                position: relative;
+            }
+
+            .sidebar-menu a {
+                color: #b8c7ce;
+                text-decoration: none;
+                padding: 12px 20px;
+                display: block;
+                border-right: 3px solid transparent;
+                transition: all 0.3s;
+            }
+
+                .sidebar-menu a:hover {
+                    color: white;
+                    background-color: rgba(255,255,255,0.1);
+                    border-right-color: var(--primary-color);
+                }
+
+                .sidebar-menu a.active {
+                    color: white;
+                    background-color: rgba(255,255,255,0.1);
+                    border-right-color: var(--primary-color);
+                }
+
+            .sidebar-menu i {
+                width: 25px;
+                margin-left: 10px;
+            }
+
+        /* Main Content - سمت چپ */
+        .main-content {
+            flex: 1;
+            margin-right: 250px;
+            transition: all 0.3s;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: var(--primary-color) !important;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0.5rem 1rem;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .navbar-nav .nav-link {
+            color: rgba(255,255,255,0.8) !important;
+        }
+
+            .navbar-nav .nav-link:hover {
+                color: white !important;
+            }
+
+        /* Content */
+        .content-header {
+            background-color: white;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,.125);
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+            margin-bottom: 0;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: white;
+            border-top: 1px solid #dee2e6;
+            padding: 15px 20px;
+            margin-top: auto;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .sidebar {
+                right: -250px;
+            }
+
+                .sidebar.active {
+                    right: 0;
+                }
+
+            .main-content {
+                margin-right: 0;
+            }
+
+            .sidebar-toggle {
+                display: block !important;
+            }
+        }
+
+        /* User dropdown */
+        .user-menu {
+            margin-left: auto;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+
+            .user-info i {
+                margin-left: 8px;
+            }
+    </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Inventory_Web</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="brand">
+                <i class="fas fa-warehouse me-2"></i>
+                سیستم انبارداری
+            </a>
+        </div>
+        <ul class="sidebar-menu" id="mainMenu">
+            <!-- منوها به صورت استاتیک پر می‌شوند -->
+            <li class="nav-item">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>داشبورد</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/Products" class="nav-link">
+                    <i class="fas fa-boxes"></i>
+                    <span>محصولات</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/Warehouses" class="nav-link">
+                    <i class="fas fa-warehouse"></i>
+                    <span>انبارها</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/Reports" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>گزارشات</span>
+                </a>
+            </li>
+            @if (User.IsInRole("Admin") || User.IsInRole("SeniorUser") || User.IsInRole("SeniorStorekeeper"))
+            {
+                <li class="nav-item">
+                    <a href="/Users" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>کاربران</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <button class="navbar-toggler d-lg-none" type="button" id="sidebarToggle">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+
+                <div class="navbar-nav me-auto">
+                    <a class="nav-link" href="/">خانه</a>
+                </div>
+
+                <div class="navbar-nav user-menu">
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>
+                            <span id="userName">@User.Identity.Name</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <div class="dropdown-item-text">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-user-circle fa-2x text-gray-600"></i>
+                                        </div>
+                                        <div class="flex-grow-1 me-3">
+                                            <div class="text-dark font-weight-bold">@User.Identity.Name</div>
+                                            <div class="text-muted small">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/Profile"><i class="fas fa-user me-2"></i>پروفایل کاربری</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <!-- در بخش dropdown منوی کاربر -->
+                            <li>
+                                <form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fas fa-sign-out-alt me-2"></i>خروج
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+        <!-- Content Header -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">@ViewData["Title"]</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-start">
+                            <li class="breadcrumb-item"><a href="/">خانه</a></li>
+                            <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="container-fluid">
+                @RenderBody()
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <strong>سیستم مدیریت انبار</strong> &copy; 2024
+                    </div>
+                    <div class="col-sm-6 text-start">
+                        <strong>نسخه ۱.۰</strong>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - Inventory_Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // مدیریت نمایش/پنهان کردن سایدبار در موبایل
+            $('#sidebarToggle').click(function () {
+                $('.sidebar').toggleClass('active');
+            });
+
+            // بستن سایدبار هنگام کلیک خارج از آن در موبایل
+            $(document).click(function (event) {
+                if ($(window).width() <= 768) {
+                    if (!$(event.target).closest('.sidebar').length &&
+                        !$(event.target).is('#sidebarToggle') &&
+                        $('.sidebar').hasClass('active')) {
+                        $('.sidebar').removeClass('active');
+                    }
+                }
+            });
+
+            // هایلایت منوی فعال
+            var currentPath = window.location.pathname;
+            $('#mainMenu a').each(function () {
+                if ($(this).attr('href') === currentPath) {
+                    $(this).addClass('active');
+                }
+            });
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

@@ -1,8 +1,58 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "داشبورد";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3>خوش آمدید به سیستم انبارداری</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <h5><i class="fas fa-check-circle"></i> شما با موفقیت وارد سیستم شدید.</h5>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="info-box-content">
+                                <span class="info-box-text">کاربر:</span>
+                                <span class="info-box-number">@User.Identity.Name</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="info-box-content">
+                                <span class="info-box-text">نقش:</span>
+                                <span class="info-box-number">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- تست دکمه خروج -->
+                <div class="mt-4 p-3 border rounded bg-light">
+                    <h6>تست عملکرد سیستم:</h6>
+                    <div class="btn-group">
+                        <a href="/Products" class="btn btn-primary">
+                            <i class="fas fa-boxes"></i> تست صفحه محصولات
+                        </a>
+                        <form asp-controller="Home" asp-action="Logout" method="post" style="display: inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-sign-out-alt"></i> تست دکمه خروج
+                            </button>
+                        </form>
+                        <!-- تست مستقیم GET -->
+                        <a href="/Auth/Logout" class="btn btn-warning">
+                            <i class="fas fa-sign-out-alt"></i> تست خروج مستقیم
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,0 +1,37 @@
+﻿@* Views/Home/DebugAuth.cshtml *@
+@model Inventory_Web.Models.DebugAuthModel
+
+@{
+    ViewData["Title"] = "دیباگ احراز هویت";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">دیباگ احراز هویت</h3>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">IsAuthenticated:</dt>
+            <dd class="col-sm-9">@Model.IsAuthenticated</dd>
+
+            <dt class="col-sm-3">UserName:</dt>
+            <dd class="col-sm-9">@Model.UserName</dd>
+
+            <dt class="col-sm-3">UserId:</dt>
+            <dd class="col-sm-9">@Model.UserId</dd>
+
+            <dt class="col-sm-3">Role:</dt>
+            <dd class="col-sm-9">@Model.Role</dd>
+
+            <dt class="col-sm-3">TokenExists:</dt>
+            <dd class="col-sm-9">@Model.TokenExists</dd>
+
+            <dt class="col-sm-3">TokenPreview:</dt>
+            <dd class="col-sm-9">@Model.TokenPreview</dd>
+
+            <dt class="col-sm-3">ApiTestResult:</dt>
+            <dd class="col-sm-9">@Model.ApiTestResult</dd>
+        </dl>
+    </div>
+</div>

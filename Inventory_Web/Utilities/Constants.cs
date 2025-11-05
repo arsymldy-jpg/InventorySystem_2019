@@ -23,6 +23,10 @@
             public const string Brands = "/api/Brands";
             public const string Audit = "/api/Audit";
             public const string Reports = "/api/Reports";
+            public const string Profile = "/api/Profile";
+            public const string ProductBrands = "/api/ProductBrands";
+            public const string WarehouseAccess = "/api/WarehouseAccess";
+            public const string StockOperations = "/api/StockOperations";
         }
 
         public static class Messages
@@ -31,5 +35,20 @@
             public const string AccountExpired = "حساب کاربری شما منقضی شده است";
             public const string AccessDenied = "شما دسترسی به این بخش را ندارید";
         }
+
+        // ثابت‌های جدید اضافه شده
+        public const string JwtCookieName = "InventoryToken";
+        public const string DefaultApiBaseUrl = "https://localhost:7001";
+    }
+
+    public class ApiSettings
+    {
+        public string BaseUrl { get; set; }
+        public int Timeout { get; set; }
+    }
+
+    public class JwtSettings
+    {
+        public string CookieName { get; set; }
     }
 }

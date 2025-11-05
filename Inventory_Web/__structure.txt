@@ -1,60 +1,196 @@
-﻿🎯 انتخاب‌های فنی:
-ذخیره توکن: HttpOnly Cookie (امن‌ترین روش)
-
-CSS Framework: Bootstrap 5 + RTL + Font Awesome
-
-State Management: Session Storage + Real-time API Calls
-
-زبان: فارسی با پشتیبانی RTL
-
-طرح: AdminLTE 3 (پروفشنال و ریسپانسیو)
-
-📁 ساختار نهایی پروژه:
+﻿🏗️ ساختار پروژه فعلی (تکمیل شده)
 text
 Inventory_Web/
 ├── Controllers/
 │   ├── HomeController.cs
 │   ├── AuthController.cs
-│   ├── ProductsController.cs
-│   ├── WarehousesController.cs
-│   ├── UsersController.cs
-│   ├── InventoryController.cs
-│   └── ReportsController.cs
-├── Models/
-│   ├── ViewModels/
-│   │   ├── Auth/
-│   │   ├── Products/
-│   │   ├── Users/
-│   │   └── Shared/
-│   └── ApiModels/
-├── Services/
-│   ├── ApiService.cs
-│   ├── AuthService.cs
-│   ├── TokenService.cs
-│   ├── HttpService.cs
-│   └── NotificationService.cs
+│   └── ProfileController.cs
 ├── Views/
 │   ├── Shared/
 │   │   ├── _Layout.cshtml
-│   │   ├── _LoginLayout.cshtml
-│   │   ├── _Sidebar.cshtml
-│   │   └── _Notification.cshtml
+│   │   └── _LoginLayout.cshtml
 │   ├── Auth/
-│   ├── Dashboard/
-│   ├── Products/
-│   ├── Warehouses/
-│   ├── Users/
-│   ├── Inventory/
-│   └── Reports/
-├── wwwroot/
-│   ├── css/
-│   ├── js/
-│   ├── lib/
-│   └── images/
+│   │   ├── Login.cshtml
+│   │   ├── AccessDenied.cshtml
+│   │   └── Unauthorized.cshtml
+│   ├── Home/
+│   │   └── Index.cshtml
+│   └── Profile/
+│       └── Index.cshtml
+├── Services/
+│   ├── IApiService.cs
+│   ├── ApiService.cs
+│   ├── IAuthService.cs
+│   ├── AuthService.cs
+│   ├── ITokenService.cs
+│   └── TokenService.cs
+├── Models/
+│   └── ApiModels/
+│       ├── LoginRequest.cs
+│       ├── AuthResponse.cs
+│       └── UserDto.cs
+├── Utilities/
+│   └── Constants.cs
 ├── Middlewares/
-│   ├── JwtMiddleware.cs
-│   └── RoleRedirectMiddleware.cs
-└── Utilities/
-    ├── Constants.cs
-    ├── RoleHelper.cs
-    └── ExtensionMethods.cs
+│   └── JwtMiddleware.cs
+├── Program.cs
+├── Startup.cs
+└── appsettings.json
+۲. 🔗 endpointهای API (از پروژه Inventory_Api)
+csharp
+// احراز هویت
+POST /api/Auth/login
+POST /api/Auth/verify
+
+// مدیریت کاربران
+GET /api/Users
+GET /api/Users/{id}
+POST /api/Users
+PUT /api/Users/{id}
+DELETE /api/Users/{id}
+PUT /api/Users/{id}/deactivate
+
+// مدیریت محصولات
+GET /api/Products
+GET /api/Products/{id}
+POST /api/Products
+PUT /api/Products/{id}
+DELETE /api/Products/{id}
+GET /api/Products/search/{name}
+GET /api/Products/low-stock
+
+// مدیریت انبارها
+GET /api/Warehouses
+GET /api/Warehouses/{id}
+POST /api/Warehouses
+PUT /api/Warehouses/{id}
+DELETE /api/Warehouses/{id}
+
+// مدیریت موجودی
+GET /api/Inventory
+POST /api/Inventory/adjust
+GET /api/Inventory/warehouse/{warehouseId}
+
+// عملیات انبار
+POST /api/StockOperations/issue
+POST /api/StockOperations/receive
+GET /api/StockOperations
+
+// گزارش‌گیری
+GET /api/Reports/inventory-summary
+GET /api/Reports/warehouse-inventory
+GET /api/Reports/brand-summary
+GET /api/Reports/low-stock-alerts
+GET /api/Reports/user-activity
+GET /api/Reports/brand-inventory
+GET /api/Reports/product-brand-summary
+
+// و سایر endpointها...
+۳. 🎯 نقش‌ها و دسترسی‌ها
+csharp
+public static class Roles
+{
+    public const string Admin = "Admin";                    // دسترسی کامل
+    public const string SeniorUser = "SeniorUser";          // دسترسی گسترده به جز مدیریت کاربران ارشد و ادمین
+    public const string SeniorStorekeeper = "SeniorStorekeeper"; // مدیریت انبارداران و موجودی‌ها
+    public const string Storekeeper = "Storekeeper";        // مدیریت موجودی انبارهای زیر مجموعه
+    public const string Viewer = "Viewer";                  // فقط مشاهده
+}
+۴. 📦 مدل‌های DTO اصلی
+csharp
+// برای احراز هویت
+public class LoginRequest {
+    public string PersonnelCode { get; set; }
+    public string Password { get; set; }
+}
+
+public class AuthResponse {
+    public string Token { get; set; }
+    public DateTime Expiration { get; set; }
+    public UserDto User { get; set; }
+}
+
+public class UserDto {
+    public int Id { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string PersonnelCode { get; set; }
+    public string Mobile { get; set; }
+    public string Email { get; set; }
+    public string RoleName { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime? ExpiryDate { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime? LastLogin { get; set; }
+}
+۵. ⚙️ تنظیمات appsettings.json
+json
+{
+  "ApiSettings": {
+    "BaseUrl": "https://localhost:44342",
+    "Timeout": 30
+  },
+  "JwtSettings": {
+    "CookieName": "InventoryToken"
+  }
+}
+۶. 🚀 گام‌های باقی مانده برای چت جدید
+فاز ۱: ماژول مدیریت محصولات
+ProductsController با CRUD کامل
+
+ویوهای لیست، ایجاد، ویرایش، حذف محصولات
+
+جستجو و فیلتر محصولات
+
+مدیریت موجودی کم
+
+فاز ۲: ماژول مدیریت انبارها
+WarehousesController
+
+ویوهای مدیریت انبارها
+
+مدیریت دسترسی انبارها
+
+فاز ۳: ماژول مدیریت کاربران
+UsersController با مدیریت نقش‌ها
+
+ویوهای مدیریت کاربران
+
+محدودیت‌های دسترسی بر اساس نقش
+
+فاز ۴: ماژول موجودی و عملیات
+InventoryController
+
+StockOperationsController
+
+ویوهای تنظیم موجودی
+
+ویوهای ورود/خروج کالا
+
+فاز ۵: ماژول گزارش‌گیری
+ReportsController
+
+ویوهای داشبورد گزارش‌ها
+
+چارت‌ها و آمار
+
+فاز ۶: تنظیمات نهایی
+تست تمام ماژول‌ها
+
+رفع خطاهای احتمالی
+
+بهینه‌سازی UI/UX
+
+۷. 📝 نکات فنی مهم برای چت جدید
+تکنولوژی: ASP.NET Core 5 MVC
+
+احراز هویت: JWT + Cookie
+
+طراحی: Bootstrap 5 + RTL
+
+ارتباط با API: HttpClient + ApiService
+
+مدیریت حالت: Session + Real-time API calls
+
+ریسپانسیو: موبایل، تبلت، دسکتاپ
+

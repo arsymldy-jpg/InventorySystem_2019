@@ -1,0 +1,89 @@
+﻿@model Inventory_Web.Controllers.CreateProductDto
+@{
+    ViewData["Title"] = "ایجاد محصول جدید";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">ایجاد محصول جدید</h3>
+    </div>
+    <div class="card-body">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                @TempData["Error"]
+            </div>
+        }
+
+        <form asp-action="Create" method="post">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Name" class="form-label">نام محصول *</label>
+                        <input asp-for="Name" class="form-control" required />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Name2" class="form-label">نام دوم</label>
+                        <input asp-for="Name2" class="form-control" />
+                        <span asp-validation-for="Name2" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group mb-3">
+                        <label asp-for="MainCode" class="form-label">کد اصلی *</label>
+                        <input asp-for="MainCode" class="form-control" required />
+                        <span asp-validation-for="MainCode" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group mb-3">
+                        <label asp-for="Code2" class="form-label">کد 2</label>
+                        <input asp-for="Code2" class="form-control" />
+                        <span asp-validation-for="Code2" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group mb-3">
+                        <label asp-for="Code3" class="form-label">کد 3</label>
+                        <input asp-for="Code3" class="form-control" />
+                        <span asp-validation-for="Code3" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ReorderPoint" class="form-label">نقطه سفارش</label>
+                        <input asp-for="ReorderPoint" type="number" class="form-control" value="0" />
+                        <span asp-validation-for="ReorderPoint" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="SafetyStock" class="form-label">موجودی اطمینان</label>
+                        <input asp-for="SafetyStock" type="number" class="form-control" value="0" />
+                        <span asp-validation-for="SafetyStock" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> ایجاد محصول
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-right"></i> بازگشت
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

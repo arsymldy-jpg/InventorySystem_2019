@@ -1,0 +1,114 @@
+﻿@model Inventory_Web.Controllers.ProductDto
+@{
+    ViewData["Title"] = "جزئیات محصول";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">جزئیات محصول</h3>
+            </div>
+            <div class="card-body">
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger">@TempData["Error"]</div>
+                }
+
+                <div class="details-container">
+                    <div class="detail-row">
+                        <div class="detail-label">کد اصلی:</div>
+                        <div class="detail-value">@Model.MainCode</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">نام محصول:</div>
+                        <div class="detail-value">@Model.Name</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">نام دوم:</div>
+                        <div class="detail-value">@Model.Name2</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">کد 2:</div>
+                        <div class="detail-value">@Model.Code2</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">کد 3:</div>
+                        <div class="detail-value">@Model.Code3</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">موجودی کل:</div>
+                        <div class="detail-value">
+                            <span class="badge @(Model.TotalQuantity > Model.ReorderPoint ? "bg-success" : "bg-warning")">
+                                @Model.TotalQuantity
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">نقطه سفارش:</div>
+                        <div class="detail-value">@Model.ReorderPoint</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">موجودی اطمینان:</div>
+                        <div class="detail-value">@Model.SafetyStock</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">وضعیت:</div>
+                        <div class="detail-value">
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">فعال</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">غیرفعال</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-right"></i> بازگشت به لیست
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .details-container {
+        max-width: 600px;
+    }
+
+    .detail-row {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+    .detail-label {
+        flex: 0 0 150px;
+        font-weight: bold;
+        color: #495057;
+    }
+
+    .detail-value {
+        flex: 1;
+        color: #212529;
+    }
+</style>

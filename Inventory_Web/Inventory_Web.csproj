@@ -14,10 +14,4 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\ViewModels\" />
-    <Folder Include="Middlewares\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>
