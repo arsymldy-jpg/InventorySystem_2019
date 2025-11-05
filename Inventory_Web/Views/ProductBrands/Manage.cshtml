@@ -1,0 +1,171 @@
+﻿@model Inventory_Web.Controllers.ProductBrandsManageViewModel
+@{
+    ViewData["Title"] = "مدیریت برندهای محصول";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">مدیریت برندهای محصول</h3>
+                    <div>
+                        <a href="@Url.Action("Index", "Products")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-right"></i> بازگشت به محصولات
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- اطلاعات محصول -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <h5>اطلاعات محصول</h5>
+                            <div class="detail-row">
+                                <div class="detail-label">نام محصول:</div>
+                                <div class="detail-value">@Model.ProductName</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">کد اصلی:</div>
+                                <div class="detail-value">@Model.ProductMainCode</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        @TempData["Error"]
+                    </div>
+                }
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        @TempData["Success"]
+                    </div>
+                }
+
+                <!-- فرم افزودن برند جدید -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">افزودن برند جدید</h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="AddBrand" method="post">
+                            <input type="hidden" name="productId" value="@Model.ProductId" />
+
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">انتخاب برند</label>
+                                        <select name="brandId" class="form-control" required>
+                                            <option value="">-- انتخاب برند --</option>
+                                            @foreach (var brand in Model.AvailableBrands)
+                                            {
+                                                <option value="@brand.Id">@brand.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="fas fa-plus"></i> افزودن برند
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- لیست برندهای فعلی -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">برندهای مرتبط با محصول</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.CurrentBrands.Count == 0)
+                        {
+                            <div class="alert alert-warning text-center">
+                                <i class="fas fa-tags fa-2x mb-3"></i>
+                                <h5>هیچ برندی مرتبط نشده است</h5>
+                                <p class="mb-0">هنوز برندی به این محصول اضافه نشده است.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>نام برند</th>
+                                            <th>توضیحات</th>
+                                            <th>عملیات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var productBrand in Model.CurrentBrands)
+                                        {
+                                            var brand = Model.AvailableBrands.FirstOrDefault(b => b.Id == productBrand.BrandId);
+                                            <tr>
+                                                <td>
+                                                    <strong>@productBrand.BrandName</strong>
+                                                </td>
+                                                <td>@(brand?.Description ?? "-")</td>
+                                                <td>
+                                                    <form asp-action="Remove" method="post"
+                                                          onsubmit="return confirm('آیا از حذف این برند از محصول اطمینان دارید؟');">
+                                                        <input type="hidden" name="id" value="@productBrand.Id" />
+                                                        <input type="hidden" name="productId" value="@Model.ProductId" />
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-danger btn-sm" title="حذف">
+                                                            <i class="fas fa-trash"></i> حذف
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .info-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+    }
+
+    .detail-row {
+        display: flex;
+        align-items: center;
+        padding: 5px 0;
+    }
+
+    .detail-label {
+        flex: 0 0 120px;
+        font-weight: bold;
+        color: #495057;
+    }
+
+    .detail-value {
+        flex: 1;
+        color: #212529;
+    }
+</style>

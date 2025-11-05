@@ -1,0 +1,108 @@
+﻿@model Inventory_Web.Controllers.IssueStockViewModel
+@{
+    ViewData["Title"] = "خروج کالا از انبار";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var products = ViewBag.Products as List<Inventory_Web.Controllers.StockProductInfo> ?? new List<Inventory_Web.Controllers.StockProductInfo>();
+    var warehouses = ViewBag.Warehouses as List<Inventory_Web.Controllers.StockWarehouseInfo> ?? new List<Inventory_Web.Controllers.StockWarehouseInfo>();
+    var brands = ViewBag.Brands as List<Inventory_Web.Controllers.StockBrandInfo> ?? new List<Inventory_Web.Controllers.StockBrandInfo>();
+    var costCenters = ViewBag.CostCenters as List<Inventory_Web.Controllers.CostCenterDto> ?? new List<Inventory_Web.Controllers.CostCenterDto>();
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">خروج کالا از انبار</h3>
+    </div>
+    <div class="card-body">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                @TempData["Error"]
+            </div>
+        }
+
+        <form asp-action="Issue" method="post">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label asp-for="ProductId" class="form-label">محصول *</label>
+                        <select asp-for="ProductId" class="form-control" required>
+                            <option value="">-- انتخاب محصول --</option>
+                            @foreach (var product in products)
+                            {
+                                <option value="@product.Id">@product.Name - @product.MainCode</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ProductId" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label asp-for="WarehouseId" class="form-label">انبار *</label>
+                        <select asp-for="WarehouseId" class="form-control" required>
+                            <option value="">-- انتخاب انبار --</option>
+                            @foreach (var warehouse in warehouses)
+                            {
+                                <option value="@warehouse.Id">@warehouse.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="WarehouseId" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label asp-for="BrandId" class="form-label">برند *</label>
+                        <select asp-for="BrandId" class="form-control" required>
+                            <option value="">-- انتخاب برند --</option>
+                            @foreach (var brand in brands)
+                            {
+                                <option value="@brand.Id">@brand.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="BrandId" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label asp-for="CostCenterId" class="form-label">مرکز هزینه *</label>
+                        <select asp-for="CostCenterId" class="form-control" required>
+                            <option value="">-- انتخاب مرکز هزینه --</option>
+                            @foreach (var costCenter in costCenters)
+                            {
+                                <option value="@costCenter.Id">@costCenter.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CostCenterId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Quantity" class="form-label">تعداد *</label>
+                        <input asp-for="Quantity" type="number" class="form-control" min="1" required />
+                        <span asp-validation-for="Quantity" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Reason" class="form-label">دلیل خروج</label>
+                        <input asp-for="Reason" class="form-control" placeholder="علت خروج کالا از انبار" />
+                        <span asp-validation-for="Reason" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-sign-out-alt"></i> ثبت خروج کالا
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-right"></i> بازگشت
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

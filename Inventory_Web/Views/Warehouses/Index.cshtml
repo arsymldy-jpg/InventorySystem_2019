@@ -91,6 +91,11 @@
                                             </a>
                                         }
 
+                                        <a href="@Url.Action("Warehouse", "Inventory", new { id = warehouse.Id })"
+                                           class="btn btn-info btn-sm" title="مشاهده موجودی">
+                                            <i class="fas fa-boxes"></i>
+                                        </a>
+
                                         @if (User.IsInRole("Admin"))
                                         {
                                             <form asp-action="Delete" method="post" style="display: inline;"

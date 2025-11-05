@@ -1,0 +1,177 @@
+﻿using Inventory_Web.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Inventory_Web.Controllers
+{
+    [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper,Storekeeper,Viewer")]
+    public class ProductBrandsController : Controller
+    {
+        private readonly IApiService _apiService;
+
+        public ProductBrandsController(IApiService apiService)
+        {
+            _apiService = apiService;
+        }
+
+        // GET: ProductBrands/Manage/5 - مدیریت برندهای یک محصول
+        [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper")]
+        public async Task<IActionResult> Manage(int productId)
+        {
+            try
+            {
+                System.Console.WriteLine($"🔍 شروع مدیریت برندها برای محصول: {productId}");
+
+                // دریافت اطلاعات محصول با مدل مشخص
+                var product = await _apiService.GetAsync<ProductInfo>($"api/Products/{productId}");
+                if (product == null)
+                {
+                    TempData["Error"] = "محصول یافت نشد";
+                    return RedirectToAction("Index", "Products");
+                }
+
+                // دریافت برندهای محصول با مدل مشخص
+                List<ProductBrandInfo> productBrands = new List<ProductBrandInfo>();
+                try
+                {
+                    var brandsResult = await _apiService.GetAsync<List<ProductBrandInfo>>($"api/ProductBrands/product/{productId}");
+                    productBrands = brandsResult ?? new List<ProductBrandInfo>();
+                }
+                catch
+                {
+                    System.Console.WriteLine("⚠️ خطا در دریافت برندهای محصول - ادامه با لیست خالی");
+                }
+
+                // دریافت لیست تمام برندها با مدل مشخص
+                List<BrandInfo> allBrands = new List<BrandInfo>();
+                try
+                {
+                    var allBrandsResult = await _apiService.GetAsync<List<BrandInfo>>("api/Brands");
+                    allBrands = allBrandsResult ?? new List<BrandInfo>();
+                }
+                catch
+                {
+                    System.Console.WriteLine("⚠️ خطا در دریافت لیست برندها - ادامه با لیست خالی");
+                }
+
+                var viewModel = new ProductBrandsManageViewModel
+                {
+                    ProductId = productId,
+                    ProductName = product.Name,
+                    ProductMainCode = product.MainCode,
+                    CurrentBrands = productBrands,
+                    AvailableBrands = allBrands
+                };
+
+                System.Console.WriteLine("✅ مدیریت برندها با موفقیت لود شد");
+                return View(viewModel);
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine($"❌ خطای کلی در مدیریت برندها: {ex.Message}");
+                TempData["Error"] = "خطا در بارگذاری صفحه مدیریت برندها";
+                return RedirectToAction("Index", "Products");
+            }
+        }
+
+        // POST: ProductBrands/AddBrand - افزودن برند به محصول
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper")]
+        public async Task<IActionResult> AddBrand(int productId, int brandId)
+        {
+            try
+            {
+                var createDto = new { ProductId = productId, BrandId = brandId };
+                var result = await _apiService.PostAsync<object>("api/ProductBrands", createDto);
+
+                if (result != null)
+                {
+                    TempData["Success"] = "برند با موفقیت به محصول اضافه شد";
+                }
+                else
+                {
+                    TempData["Error"] = "خطا در افزودن برند به محصول";
+                }
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine($"❌ خطا در افزودن برند به محصول: {ex.Message}");
+
+                if (ex.Message.Contains("این برند قبلاً به محصول اضافه شده است"))
+                {
+                    TempData["Error"] = "این برند قبلاً به محصول اضافه شده است";
+                }
+                else
+                {
+                    TempData["Error"] = "خطا در افزودن برند به محصول";
+                }
+            }
+
+            return RedirectToAction("Manage", new { productId = productId });
+        }
+
+        // POST: ProductBrands/Remove/5 - حذف برند از محصول
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper")]
+        public async Task<IActionResult> Remove(int id, int productId)
+        {
+            try
+            {
+                var success = await _apiService.DeleteAsync($"api/ProductBrands/{id}");
+                if (success)
+                {
+                    TempData["Success"] = "برند با موفقیت از محصول حذف شد";
+                }
+                else
+                {
+                    TempData["Error"] = "خطا در حذف برند از محصول";
+                }
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine($"❌ خطا در حذف برند از محصول: {ex.Message}");
+                TempData["Error"] = "خطا در حذف برند از محصول";
+            }
+
+            return RedirectToAction("Manage", new { productId = productId });
+        }
+    }
+
+    // مدل‌های کمکی
+    public class ProductBrandsManageViewModel
+    {
+        public int ProductId { get; set; }
+        public string ProductName { get; set; }
+        public string ProductMainCode { get; set; }
+        public List<ProductBrandInfo> CurrentBrands { get; set; }
+        public List<BrandInfo> AvailableBrands { get; set; }
+    }
+
+    public class ProductInfo
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string MainCode { get; set; }
+    }
+
+    public class ProductBrandInfo
+    {
+        public int Id { get; set; }
+        public int ProductId { get; set; }
+        public string ProductName { get; set; }
+        public int BrandId { get; set; }
+        public string BrandName { get; set; }
+    }
+
+    public class BrandInfo
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public bool IsActive { get; set; }
+    }
+}

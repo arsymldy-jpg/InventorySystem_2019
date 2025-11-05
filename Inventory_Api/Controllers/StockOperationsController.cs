@@ -228,47 +228,105 @@ namespace Inventory_Api.Controllers
             [FromQuery] DateTime? toDate = null,
             [FromQuery] string operationType = null)
         {
-            var query = _context.StockOperations
-                .Include(so => so.Product)
-                .Include(so => so.Warehouse)
-                .Include(so => so.Brand)
-                .Include(so => so.CostCenter)
-                .Include(so => so.CreatedByUser)
-                .AsQueryable();
+            try
+            {
+                var query = _context.StockOperations
+                    .Include(so => so.Product)          // لود محصول
+                    .Include(so => so.Warehouse)        // لود انبار
+                    .Include(so => so.Brand)            // لود برند
+                    .Include(so => so.CostCenter)       // لود مرکز هزینه
+                    .Include(so => so.CreatedByUser)    // لود کاربر ایجاد کننده
+                    .AsQueryable();
 
-            if (fromDate.HasValue)
-                query = query.Where(so => so.OperationDate >= fromDate.Value);
+                if (fromDate.HasValue)
+                    query = query.Where(so => so.OperationDate >= fromDate.Value);
 
-            if (toDate.HasValue)
-                query = query.Where(so => so.OperationDate <= toDate.Value);
+                if (toDate.HasValue)
+                    query = query.Where(so => so.OperationDate <= toDate.Value);
 
-            if (!string.IsNullOrEmpty(operationType))
-                query = query.Where(so => so.OperationType == operationType);
+                if (!string.IsNullOrEmpty(operationType))
+                    query = query.Where(so => so.OperationType == operationType);
 
-            var operations = await query
-                .OrderByDescending(so => so.OperationDate)
-                .Select(so => new StockOperationDto
-                {
-                    Id = so.Id,
-                    ProductId = so.ProductId,
-                    ProductName = so.Product.Name,
-                    WarehouseId = so.WarehouseId,
-                    WarehouseName = so.Warehouse.Name,
-                    BrandId = so.BrandId,
-                    BrandName = so.Brand.Name,
-                    Quantity = so.Quantity,
-                    OperationType = so.OperationType,
-                    CostCenterId = so.CostCenterId,
-                    CostCenterName = so.CostCenter != null ? so.CostCenter.Name : null,
-                    Reason = so.Reason,
-                    OperationDate = so.OperationDate,
-                    CreatedBy = so.CreatedBy,
-                    CreatedByName = $"{so.CreatedByUser.FirstName} {so.CreatedByUser.LastName}"
-                })
-                .ToListAsync();
+                var operations = await query
+                    .OrderByDescending(so => so.OperationDate)
+                    .Select(so => new StockOperationDto
+                    {
+                        Id = so.Id,
+                        ProductId = so.ProductId,
+                        ProductName = so.Product.Name,  // نام محصول
+                WarehouseId = so.WarehouseId,
+                        WarehouseName = so.Warehouse.Name, // نام انبار
+                BrandId = so.BrandId,
+                        BrandName = so.Brand.Name,      // نام برند
+                Quantity = so.Quantity,
+                        OperationType = so.OperationType,
+                        CostCenterId = so.CostCenterId,
+                        CostCenterName = so.CostCenter != null ? so.CostCenter.Name : null, // نام مرکز هزینه
+                Reason = so.Reason,
+                        OperationDate = so.OperationDate,
+                        CreatedBy = so.CreatedBy,
+                        CreatedByName = $"{so.CreatedByUser.FirstName} {so.CreatedByUser.LastName}" // نام کاربر
+            })
+                    .ToListAsync();
 
-            return Ok(operations);
+                return Ok(operations);
+            }
+            catch (Exception ex)
+            {
+                // لاگ خطا
+                Console.WriteLine($"❌ خطا در دریافت عملیات: {ex.Message}");
+                return StatusCode(500, "خطا در دریافت تاریخچه عملیات");
+            }
         }
+
+        //// GET: api/StockOperations
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<StockOperationDto>>> GetStockOperations(
+        //    [FromQuery] DateTime? fromDate = null,
+        //    [FromQuery] DateTime? toDate = null,
+        //    [FromQuery] string operationType = null)
+        //{
+        //    var query = _context.StockOperations
+        //        .Include(so => so.Product)
+        //        .Include(so => so.Warehouse)
+        //        .Include(so => so.Brand)
+        //        .Include(so => so.CostCenter)
+        //        .Include(so => so.CreatedByUser)
+        //        .AsQueryable();
+
+        //    if (fromDate.HasValue)
+        //        query = query.Where(so => so.OperationDate >= fromDate.Value);
+
+        //    if (toDate.HasValue)
+        //        query = query.Where(so => so.OperationDate <= toDate.Value);
+
+        //    if (!string.IsNullOrEmpty(operationType))
+        //        query = query.Where(so => so.OperationType == operationType);
+
+        //    var operations = await query
+        //        .OrderByDescending(so => so.OperationDate)
+        //        .Select(so => new StockOperationDto
+        //        {
+        //            Id = so.Id,
+        //            ProductId = so.ProductId,
+        //            ProductName = so.Product.Name,
+        //            WarehouseId = so.WarehouseId,
+        //            WarehouseName = so.Warehouse.Name,
+        //            BrandId = so.BrandId,
+        //            BrandName = so.Brand.Name,
+        //            Quantity = so.Quantity,
+        //            OperationType = so.OperationType,
+        //            CostCenterId = so.CostCenterId,
+        //            CostCenterName = so.CostCenter != null ? so.CostCenter.Name : null,
+        //            Reason = so.Reason,
+        //            OperationDate = so.OperationDate,
+        //            CreatedBy = so.CreatedBy,
+        //            CreatedByName = $"{so.CreatedByUser.FirstName} {so.CreatedByUser.LastName}"
+        //        })
+        //        .ToListAsync();
+
+        //    return Ok(operations);
+        //}
 
         private async Task UpdateProductTotalQuantity(int productId)
         {

@@ -1,0 +1,107 @@
+﻿@model Inventory_Web.Controllers.AdjustInventoryViewModel
+@{
+    ViewData["Title"] = "تنظیم موجودی";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">تنظیم موجودی</h3>
+    </div>
+    <div class="card-body">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                @TempData["Error"]
+            </div>
+        }
+
+        <!-- اطلاعات محصول -->
+        <div class="info-box mb-4">
+            <h5>اطلاعات آیتم</h5>
+            <div class="detail-row">
+                <div class="detail-label">محصول:</div>
+                <div class="detail-value">@Model.ProductName</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">انبار:</div>
+                <div class="detail-value">@Model.WarehouseName</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">برند:</div>
+                <div class="detail-value">@Model.BrandName</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">موجودی فعلی:</div>
+                <div class="detail-value">
+                    <span class="badge @(Model.CurrentQuantity > 0 ? "bg-success" : "bg-warning")">
+                        @Model.CurrentQuantity
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <form asp-action="Adjust" method="post">
+            <input type="hidden" asp-for="ProductId" />
+            <input type="hidden" asp-for="WarehouseId" />
+            <input type="hidden" asp-for="BrandId" />
+            <input type="hidden" asp-for="ProductName" />
+            <input type="hidden" asp-for="WarehouseName" />
+            <input type="hidden" asp-for="BrandName" />
+            <input type="hidden" asp-for="CurrentQuantity" />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="NewQuantity" class="form-label">موجودی جدید *</label>
+                        <input asp-for="NewQuantity" type="number" class="form-control" min="0" required />
+                        <span asp-validation-for="NewQuantity" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Reason" class="form-label">دلیل تنظیم</label>
+                        <input asp-for="Reason" class="form-control" placeholder="علت تغییر موجودی" />
+                        <span asp-validation-for="Reason" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> ذخیره تغییرات
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-right"></i> بازگشت
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .info-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+    }
+
+    .detail-row {
+        display: flex;
+        align-items: center;
+        padding: 5px 0;
+    }
+
+    .detail-label {
+        flex: 0 0 120px;
+        font-weight: bold;
+        color: #495057;
+    }
+
+    .detail-value {
+        flex: 1;
+        color: #212529;
+    }
+</style>

@@ -80,6 +80,14 @@
                                             </a>
                                         }
 
+                                        @if (User.IsInRole("Admin") || User.IsInRole("SeniorUser") || User.IsInRole("SeniorStorekeeper"))
+                                        {
+                                            <a href="@Url.Action("Manage", "ProductBrands", new { productId = product.Id })"
+                                               class="btn btn-info btn-sm" title="مدیریت برندها">
+                                                <i class="fas fa-tags"></i>
+                                            </a>
+                                        }
+
                                         @if (User.IsInRole("Admin") || User.IsInRole("SeniorUser"))
                                         {
                                             <form asp-action="Delete" method="post" style="display: inline;"
