@@ -78,6 +78,11 @@ namespace Inventory_Web
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+                // اضافه کردن route برای APIهای داخلی
+                endpoints.MapControllerRoute(
+                    name: "api",
+                    pattern: "api/{controller}/{action}/{id?}");
             });
         }
     }

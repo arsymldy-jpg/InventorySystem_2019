@@ -76,6 +76,27 @@ namespace Inventory_Web.Controllers
             }
         }
 
+        // به فایل ProductBrandsController.cs در پروژه Web اضافه شود
+
+        // GET: api/ProductBrands/product/{productId} - دریافت برندهای یک محصول (برای استفاده در JavaScript)
+        [HttpGet("api/ProductBrands/product/{productId}")]
+        [AllowAnonymous] // یا [Authorize] اگر نیاز به احراز هویت دارد
+        public async Task<IActionResult> GetProductBrandsApi(int productId)
+        {
+            try
+            {
+                var productBrands = await _apiService.GetAsync<List<ProductBrandInfo>>($"api/ProductBrands/product/{productId}");
+                return Ok(productBrands ?? new List<ProductBrandInfo>());
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine($"❌ خطا در دریافت برندهای محصول از API: {ex.Message}");
+                return StatusCode(500, new { error = "خطا در دریافت برندهای محصول" });
+            }
+        }
+
+
+
         // POST: ProductBrands/AddBrand - افزودن برند به محصول
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -139,6 +160,16 @@ namespace Inventory_Web.Controllers
 
             return RedirectToAction("Manage", new { productId = productId });
         }
+    }
+
+    // اگر در فایل ProductBrandsController وب نیاز است
+    public class ProductBrandApiResponse
+    {
+        public int Id { get; set; }
+        public int ProductId { get; set; }
+        public string ProductName { get; set; }
+        public int BrandId { get; set; }
+        public string BrandName { get; set; }
     }
 
     // مدل‌های کمکی

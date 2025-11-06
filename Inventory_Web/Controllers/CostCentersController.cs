@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Inventory_Web.Controllers
 {
-    [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper")]
+    [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper,Storekeeper,Viewer")]
     public class CostCentersController : Controller
     {
         private readonly IApiService _apiService;
@@ -41,6 +41,7 @@ namespace Inventory_Web.Controllers
         // POST: CostCenters/Create - ثبت مرکز هزینه جدید
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper")]
         public async Task<IActionResult> Create(CreateCostCenterViewModel createCostCenterDto)
         {
             try
@@ -88,6 +89,7 @@ namespace Inventory_Web.Controllers
         // POST: CostCenters/Edit/5 - ثبت ویرایش مرکز هزینه
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper")]
         public async Task<IActionResult> Edit(int id, CostCenterItemDto costCenterDto)
         {
             try
@@ -114,6 +116,51 @@ namespace Inventory_Web.Controllers
                 System.Console.WriteLine($"❌ خطا در ویرایش مرکز هزینه: {ex.Message}");
                 TempData["Error"] = "خطا در ویرایش مرکز هزینه";
                 return View(costCenterDto);
+            }
+        }
+
+        // POST: CostCenters/Delete/5 - غیرفعال کردن مرکز هزینه
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var success = await _apiService.DeleteAsync($"api/CostCenters/{id}");
+                if (success)
+                {
+                    TempData["Success"] = "مرکز هزینه با موفقیت غیرفعال شد";
+                }
+                else
+                {
+                    TempData["Error"] = "خطا در غیرفعال کردن مرکز هزینه";
+                }
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine($"❌ خطا در غیرفعال کردن مرکز هزینه: {ex.Message}");
+                TempData["Error"] = "خطا در غیرفعال کردن مرکز هزینه";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // به فایل CostCentersController.cs در پروژه Web اضافه شود
+
+        // GET: CostCenters/CheckUsage/5 - بررسی استفاده از مرکز هزینه
+        [HttpGet]
+        public async Task<IActionResult> CheckUsage(int id)
+        {
+            try
+            {
+                var isUsed = await _apiService.GetAsync<bool>($"api/CostCenters/{id}/usage");
+                return Ok(new { isUsed = isUsed });
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine($"❌ خطا در بررسی استفاده مرکز هزینه: {ex.Message}");
+                return Ok(new { isUsed = true }); // در صورت خطا، فرض می‌کنیم استفاده شده
             }
         }
     }

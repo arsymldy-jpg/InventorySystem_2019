@@ -13,7 +13,7 @@ namespace Inventory_Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
+    [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper, Roles.Storekeeper, Roles.Viewer)]
     public class CostCentersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -78,6 +78,7 @@ namespace Inventory_Api.Controllers
 
         // POST: api/CostCenters
         [HttpPost]
+        [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
         public async Task<ActionResult<CostCenterDto>> CreateCostCenter(CreateCostCenterDto createCostCenterDto)
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -109,6 +110,7 @@ namespace Inventory_Api.Controllers
 
         // PUT: api/CostCenters/5
         [HttpPut("{id}")]
+        [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
         public async Task<IActionResult> UpdateCostCenter(int id, CostCenterDto costCenterDto)
         {
             if (id != costCenterDto.Id)
@@ -132,7 +134,7 @@ namespace Inventory_Api.Controllers
 
         // DELETE: api/CostCenters/5
         [HttpDelete("{id}")]
-        [AuthorizeRole(Roles.Admin, Roles.SeniorUser)]
+        [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
         public async Task<IActionResult> DeleteCostCenter(int id)
         {
             var costCenter = await _context.CostCenters.FindAsync(id);
@@ -145,6 +147,26 @@ namespace Inventory_Api.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        // به فایل CostCentersController.cs در پروژه API اضافه شود
+
+        // GET: api/CostCenters/{id}/usage - بررسی استفاده از مرکز هزینه در عملیات انبار
+        [HttpGet("{id}/usage")]
+        public async Task<ActionResult<bool>> CheckCostCenterUsage(int id)
+        {
+            try
+            {
+                var isUsed = await _context.StockOperations
+                    .AnyAsync(so => so.CostCenterId == id);
+
+                return Ok(isUsed);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ خطا در بررسی استفاده مرکز هزینه: {ex.Message}");
+                return StatusCode(500, "خطا در بررسی استفاده مرکز هزینه");
+            }
         }
     }
 }

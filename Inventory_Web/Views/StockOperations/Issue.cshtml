@@ -5,7 +5,6 @@
 
     var products = ViewBag.Products as List<Inventory_Web.Controllers.StockProductInfo> ?? new List<Inventory_Web.Controllers.StockProductInfo>();
     var warehouses = ViewBag.Warehouses as List<Inventory_Web.Controllers.StockWarehouseInfo> ?? new List<Inventory_Web.Controllers.StockWarehouseInfo>();
-    var brands = ViewBag.Brands as List<Inventory_Web.Controllers.StockBrandInfo> ?? new List<Inventory_Web.Controllers.StockBrandInfo>();
     var costCenters = ViewBag.CostCenters as List<Inventory_Web.Controllers.CostCenterDto> ?? new List<Inventory_Web.Controllers.CostCenterDto>();
 }
 
@@ -22,12 +21,12 @@
             </div>
         }
 
-        <form asp-action="Issue" method="post">
+        <form asp-action="Issue" method="post" id="issueForm">
             <div class="row">
                 <div class="col-md-3">
                     <div class="form-group mb-3">
                         <label asp-for="ProductId" class="form-label">محصول *</label>
-                        <select asp-for="ProductId" class="form-control" required>
+                        <select asp-for="ProductId" class="form-control" id="productSelect" required>
                             <option value="">-- انتخاب محصول --</option>
                             @foreach (var product in products)
                             {
@@ -53,14 +52,11 @@
                 <div class="col-md-3">
                     <div class="form-group mb-3">
                         <label asp-for="BrandId" class="form-label">برند *</label>
-                        <select asp-for="BrandId" class="form-control" required>
-                            <option value="">-- انتخاب برند --</option>
-                            @foreach (var brand in brands)
-                            {
-                                <option value="@brand.Id">@brand.Name</option>
-                            }
+                        <select asp-for="BrandId" class="form-control" id="brandSelect" required disabled>
+                            <option value="">-- ابتدا محصول را انتخاب کنید --</option>
                         </select>
                         <span asp-validation-for="BrandId" class="text-danger"></span>
+                        <small class="text-muted" id="brandHelp">برندهای مرتبط با محصول انتخاب شده نمایش داده می‌شوند</small>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -106,3 +102,61 @@
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const productSelect = $('#productSelect');
+            const brandSelect = $('#brandSelect');
+            const brandHelp = $('#brandHelp');
+
+            // وقتی محصول تغییر می‌کند
+            productSelect.change(function () {
+                const productId = $(this).val();
+
+                if (productId) {
+                    // غیرفعال کردن dropdown برندها در حین لود
+                    brandSelect.prop('disabled', true).html('<option value="">در حال بارگذاری برندها...</option>');
+                    brandHelp.text('در حال دریافت برندهای مرتبط...');
+
+                    // دریافت برندهای مرتبط با محصول
+                    $.get(`/api/ProductBrands/product/${productId}`, function (brands) {
+                        if (brands && brands.length > 0) {
+                            brandSelect.html('<option value="">-- انتخاب برند --</option>');
+                            brands.forEach(function (brand) {
+                                brandSelect.append(`<option value="${brand.brandId}">${brand.brandName}</option>`);
+                            });
+                            brandSelect.prop('disabled', false);
+                            brandHelp.text(`تعداد ${brands.length} برند مرتبط یافت شد`);
+                        } else {
+                            brandSelect.html('<option value="">-- هیچ برندی برای این محصول تعریف نشده --</option>');
+                            brandSelect.prop('disabled', true);
+                            brandHelp.text('⚠️ هیچ برندی برای این محصول تعریف نشده است. لطفاً از صفحه مدیریت محصول، برندها را اضافه کنید.');
+                        }
+                    }).fail(function (xhr, status, error) {
+                        console.error('خطا در دریافت برندها:', error);
+                        brandSelect.html('<option value="">-- خطا در دریافت برندها --</option>');
+                        brandHelp.text('❌ خطا در دریافت برندهای محصول');
+                    });
+                } else {
+                    // اگر محصولی انتخاب نشده
+                    brandSelect.html('<option value="">-- ابتدا محصول را انتخاب کنید --</option>');
+                    brandSelect.prop('disabled', true);
+                    brandHelp.text('برندهای مرتبط با محصول انتخاب شده نمایش داده می‌شوند');
+                }
+            });
+
+            // مدیریت ارسال فرم - بررسی انتخاب برند
+            $('#issueForm').submit(function (e) {
+                const productId = productSelect.val();
+                const brandId = brandSelect.val();
+
+                if (productId && (!brandId || brandSelect.prop('disabled'))) {
+                    e.preventDefault();
+                    alert('⚠️ لطفاً یک برند معتبر انتخاب کنید. اگر برندی موجود نیست، ابتدا از صفحه مدیریت محصول، برندها را اضافه کنید.');
+                    return false;
+                }
+            });
+        });
+    </script>
+}

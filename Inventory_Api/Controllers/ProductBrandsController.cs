@@ -13,7 +13,7 @@ namespace Inventory_Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
+    [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper, Roles.Storekeeper, Roles.Viewer)]
     public class ProductBrandsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -25,6 +25,7 @@ namespace Inventory_Api.Controllers
 
         // POST: api/ProductBrands
         [HttpPost]
+        [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
         public async Task<ActionResult<ProductBrandDto>> AddBrandToProduct(CreateProductBrandDto createDto)
         {
             // بررسی وجود ارتباط
@@ -86,6 +87,7 @@ namespace Inventory_Api.Controllers
 
         // DELETE: api/ProductBrands/5
         [HttpDelete("{id}")]
+        [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
         public async Task<IActionResult> RemoveBrandFromProduct(int id)
         {
             var productBrand = await _context.ProductBrands.FindAsync(id);
