@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Inventory_Web.Controllers
 {
-    [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper,Storekeeper")]
+    [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper,Storekeeper,Viewer")]
     public class InventoryController : Controller
     {
         private readonly IApiService _apiService;
@@ -17,12 +17,22 @@ namespace Inventory_Web.Controllers
             _apiService = apiService;
         }
 
-        // GET: Inventory - مشاهده موجودی همه انبارها
+        // GET: Inventory - مشاهده موجودی (فیلتر شده براساس دسترسی)
         public async Task<IActionResult> Index()
         {
             try
             {
                 var inventory = await _apiService.GetAsync<List<InventoryItemDto>>("api/Inventory");
+
+                // فیلتر کردن موجودی برای انبارداران و ناظران
+                if ((User.IsInRole("Storekeeper") || User.IsInRole("Viewer")) &&
+                    !User.IsInRole("Admin") && !User.IsInRole("SeniorUser") && !User.IsInRole("SeniorStorekeeper"))
+                {
+                    // دریافت انبارهای قابل مشاهده کاربر
+                    var accessibleWarehouses = await GetAccessibleWarehousesForUser();
+                    inventory = inventory?.Where(item => accessibleWarehouses.Contains(item.WarehouseId)).ToList();
+                }
+
                 return View(inventory ?? new List<InventoryItemDto>());
             }
             catch (System.Exception ex)
@@ -33,11 +43,23 @@ namespace Inventory_Web.Controllers
             }
         }
 
-        // GET: Inventory/Warehouse/5 - موجودی یک انبار خاص
+        // GET: Inventory/Warehouse/5 - موجودی یک انبار خاص (با بررسی دسترسی)
         public async Task<IActionResult> Warehouse(int id)
         {
             try
             {
+                // بررسی دسترسی مشاهده برای انبارداران و ناظران
+                if ((User.IsInRole("Storekeeper") || User.IsInRole("Viewer")) &&
+                    !User.IsInRole("Admin") && !User.IsInRole("SeniorUser") && !User.IsInRole("SeniorStorekeeper"))
+                {
+                    var canView = await CanUserViewWarehouse(id);
+                    if (!canView)
+                    {
+                        TempData["Error"] = "شما مجوز مشاهده این انبار را ندارید";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+
                 var inventory = await _apiService.GetAsync<List<InventoryItemDto>>($"api/Inventory/warehouse/{id}");
                 ViewBag.WarehouseId = id;
                 return View("Index", inventory ?? new List<InventoryItemDto>());
@@ -50,12 +72,23 @@ namespace Inventory_Web.Controllers
             }
         }
 
-        // GET: Inventory/Adjust/5 - فرم تنظیم موجودی
+        // GET: Inventory/Adjust/5 - فرم تنظیم موجودی (با بررسی دسترسی)
         [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper,Storekeeper")]
         public async Task<IActionResult> Adjust(int productId, int warehouseId, int brandId)
         {
             try
             {
+                // بررسی دسترسی ویرایش برای انبارداران
+                if (User.IsInRole("Storekeeper") && !User.IsInRole("Admin") && !User.IsInRole("SeniorUser") && !User.IsInRole("SeniorStorekeeper"))
+                {
+                    var canEdit = await CanUserEditWarehouse(warehouseId);
+                    if (!canEdit)
+                    {
+                        TempData["Error"] = "شما مجوز ویرایش این انبار را ندارید";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+
                 // دریافت اطلاعات محصول، انبار و برند
                 var product = await _apiService.GetAsync<InventoryProductInfo>($"api/Products/{productId}");
                 var warehouse = await _apiService.GetAsync<InventoryWarehouseInfo>($"api/Warehouses/{warehouseId}");
@@ -93,7 +126,7 @@ namespace Inventory_Web.Controllers
             }
         }
 
-        // POST: Inventory/Adjust - تنظیم موجودی
+        // POST: Inventory/Adjust - تنظیم موجودی (با بررسی دسترسی)
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper,Storekeeper")]
@@ -101,6 +134,17 @@ namespace Inventory_Web.Controllers
         {
             try
             {
+                // بررسی دسترسی ویرایش برای انبارداران
+                if (User.IsInRole("Storekeeper") && !User.IsInRole("Admin") && !User.IsInRole("SeniorUser") && !User.IsInRole("SeniorStorekeeper"))
+                {
+                    var canEdit = await CanUserEditWarehouse(model.WarehouseId);
+                    if (!canEdit)
+                    {
+                        TempData["Error"] = "شما مجوز ویرایش این انبار را ندارید";
+                        return View(model);
+                    }
+                }
+
                 if (ModelState.IsValid)
                 {
                     var adjustDto = new
@@ -129,9 +173,49 @@ namespace Inventory_Web.Controllers
                 return View(model);
             }
         }
+
+        // متدهای کمکی برای مدیریت دسترسی
+        private async Task<List<int>> GetAccessibleWarehousesForUser()
+        {
+            try
+            {
+                var accessList = await _apiService.GetAsync<List<WarehouseAccessInfoModel>>($"api/WarehouseAccess/user-access");
+                return accessList?.Where(a => a.CanView).Select(a => a.WarehouseId).ToList() ?? new List<int>();
+            }
+            catch
+            {
+                return new List<int>();
+            }
+        }
+
+        private async Task<bool> CanUserViewWarehouse(int warehouseId)
+        {
+            try
+            {
+                var accessList = await _apiService.GetAsync<List<WarehouseAccessInfoModel>>($"api/WarehouseAccess/user-access");
+                return accessList?.Any(a => a.WarehouseId == warehouseId && a.CanView) ?? false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task<bool> CanUserEditWarehouse(int warehouseId)
+        {
+            try
+            {
+                var accessList = await _apiService.GetAsync<List<WarehouseAccessInfoModel>>($"api/WarehouseAccess/user-access");
+                return accessList?.Any(a => a.WarehouseId == warehouseId && a.CanEdit) ?? false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 
-    // مدل‌های جدید با نام‌های منحصربفرد
+    // مدل‌های اصلی (همان‌هایی که از قبل وجود داشتند)
     public class InventoryItemDto
     {
         public int Id { get; set; }

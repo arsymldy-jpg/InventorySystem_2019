@@ -230,13 +230,28 @@ namespace Inventory_Api.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var currentUserRoleId = int.Parse(User.FindFirst("RoleId")?.Value);
+                var currentUserRole = Roles.GetRoleName(currentUserRoleId);
+
                 var query = _context.StockOperations
-                    .Include(so => so.Product)          // لود محصول
-                    .Include(so => so.Warehouse)        // لود انبار
-                    .Include(so => so.Brand)            // لود برند
-                    .Include(so => so.CostCenter)       // لود مرکز هزینه
-                    .Include(so => so.CreatedByUser)    // لود کاربر ایجاد کننده
+                    .Include(so => so.Product)
+                    .Include(so => so.Warehouse)
+                    .Include(so => so.Brand)
+                    .Include(so => so.CostCenter)
+                    .Include(so => so.CreatedByUser)
                     .AsQueryable();
+
+                // 🔥 اضافه کردن فیلتر دسترسی برای انباردار
+                if (currentUserRole == Roles.Storekeeper)
+                {
+                    var accessibleWarehouses = await _context.WarehouseAccesses
+                        .Where(wa => wa.UserId == currentUserId && (wa.CanView || wa.CanEdit))
+                        .Select(wa => wa.WarehouseId)
+                        .ToListAsync();
+
+                    query = query.Where(so => accessibleWarehouses.Contains(so.WarehouseId));
+                }
 
                 if (fromDate.HasValue)
                     query = query.Where(so => so.OperationDate >= fromDate.Value);
@@ -253,31 +268,31 @@ namespace Inventory_Api.Controllers
                     {
                         Id = so.Id,
                         ProductId = so.ProductId,
-                        ProductName = so.Product.Name,  // نام محصول
-                WarehouseId = so.WarehouseId,
-                        WarehouseName = so.Warehouse.Name, // نام انبار
-                BrandId = so.BrandId,
-                        BrandName = so.Brand.Name,      // نام برند
-                Quantity = so.Quantity,
+                        ProductName = so.Product.Name,
+                        WarehouseId = so.WarehouseId,
+                        WarehouseName = so.Warehouse.Name,
+                        BrandId = so.BrandId,
+                        BrandName = so.Brand.Name,
+                        Quantity = so.Quantity,
                         OperationType = so.OperationType,
                         CostCenterId = so.CostCenterId,
-                        CostCenterName = so.CostCenter != null ? so.CostCenter.Name : null, // نام مرکز هزینه
-                Reason = so.Reason,
+                        CostCenterName = so.CostCenter != null ? so.CostCenter.Name : null,
+                        Reason = so.Reason,
                         OperationDate = so.OperationDate,
                         CreatedBy = so.CreatedBy,
-                        CreatedByName = $"{so.CreatedByUser.FirstName} {so.CreatedByUser.LastName}" // نام کاربر
-            })
+                        CreatedByName = $"{so.CreatedByUser.FirstName} {so.CreatedByUser.LastName}"
+                    })
                     .ToListAsync();
 
                 return Ok(operations);
             }
             catch (Exception ex)
             {
-                // لاگ خطا
                 Console.WriteLine($"❌ خطا در دریافت عملیات: {ex.Message}");
                 return StatusCode(500, "خطا در دریافت تاریخچه عملیات");
             }
         }
+
 
         //// GET: api/StockOperations
         //[HttpGet]

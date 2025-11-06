@@ -15,7 +15,7 @@ namespace Inventory_Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
+    [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper, Roles.Storekeeper)]
     public class WarehouseAccessController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -29,6 +29,7 @@ namespace Inventory_Api.Controllers
 
         // GET: api/WarehouseAccess/user/5
         [HttpGet("user/{userId}")]
+        [AuthorizeRole(Roles.Storekeeper)]
         public async Task<ActionResult<IEnumerable<WarehouseAccessDto>>> GetUserWarehouseAccess(int userId)
         {
             var accessList = await _context.WarehouseAccesses
@@ -52,6 +53,7 @@ namespace Inventory_Api.Controllers
 
         // POST: api/WarehouseAccess
         [HttpPost]
+        [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
         public async Task<ActionResult<WarehouseAccessDto>> CreateWarehouseAccess(CreateWarehouseAccessDto createDto)
         {
             // بررسی وجود دسترسی تکراری
@@ -100,6 +102,7 @@ namespace Inventory_Api.Controllers
 
         // PUT: api/WarehouseAccess/5
         [HttpPut("{id}")]
+        [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
         public async Task<IActionResult> UpdateWarehouseAccess(int id, UpdateWarehouseAccessDto updateDto)
         {
             var warehouseAccess = await _context.WarehouseAccesses.FindAsync(id);
@@ -125,6 +128,7 @@ namespace Inventory_Api.Controllers
 
         // DELETE: api/WarehouseAccess/5
         [HttpDelete("{id}")]
+        [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
         public async Task<IActionResult> DeleteWarehouseAccess(int id)
         {
             var warehouseAccess = await _context.WarehouseAccesses.FindAsync(id);

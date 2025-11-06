@@ -14,7 +14,7 @@ namespace Inventory_Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
+    [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper, Roles.Storekeeper, Roles.Viewer)]
     public class BrandsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -28,7 +28,6 @@ namespace Inventory_Api.Controllers
 
         // GET: api/Brands - همه می‌توانند مشاهده کنند
         [HttpGet]
-        [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper, Roles.Storekeeper, Roles.Viewer)]
         public async Task<ActionResult<IEnumerable<BrandDto>>> GetBrands()
         {
             var brands = await _context.Brands
@@ -72,6 +71,7 @@ namespace Inventory_Api.Controllers
 
         // POST: api/Brands
         [HttpPost]
+        [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
         public async Task<ActionResult<BrandDto>> CreateBrand(CreateBrandDto createBrandDto)
         {
             var brand = new Brand
@@ -102,6 +102,7 @@ namespace Inventory_Api.Controllers
 
         // PUT: api/Brands/5
         [HttpPut("{id}")]
+        [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper)]
         public async Task<IActionResult> UpdateBrand(int id, BrandDto brandDto)
         {
             if (id != brandDto.Id)

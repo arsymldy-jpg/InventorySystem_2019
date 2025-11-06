@@ -39,22 +39,22 @@ namespace Inventory_Api.Controllers
             IQueryable<Product> productsQuery = _context.Products
                 .Where(p => p.IsActive);
 
-            // اگر کاربر انباردار است، فقط محصولاتی که در انبارهای زیرمجموعه موجود هستند را نشان بده
-            if (currentUserRole == Roles.Storekeeper)
-            {
-                var accessibleWarehouses = await _context.WarehouseAccesses
-                    .Where(wa => wa.UserId == currentUserId && wa.CanView)
-                    .Select(wa => wa.WarehouseId)
-                    .ToListAsync();
+            //// اگر کاربر انباردار است، فقط محصولاتی که در انبارهای زیرمجموعه موجود هستند را نشان بده
+            //if (currentUserRole == Roles.Storekeeper)
+            //{
+            //    var accessibleWarehouses = await _context.WarehouseAccesses
+            //        .Where(wa => wa.UserId == currentUserId && wa.CanView)
+            //        .Select(wa => wa.WarehouseId)
+            //        .ToListAsync();
 
-                var productIdsInAccessibleWarehouses = await _context.Inventories
-                    .Where(i => accessibleWarehouses.Contains(i.WarehouseId) && i.Quantity > 0)
-                    .Select(i => i.ProductId)
-                    .Distinct()
-                    .ToListAsync();
+            //    var productIdsInAccessibleWarehouses = await _context.Inventories
+            //        .Where(i => accessibleWarehouses.Contains(i.WarehouseId) && i.Quantity > 0)
+            //        .Select(i => i.ProductId)
+            //        .Distinct()
+            //        .ToListAsync();
 
-                productsQuery = productsQuery.Where(p => productIdsInAccessibleWarehouses.Contains(p.Id));
-            }
+            //    productsQuery = productsQuery.Where(p => productIdsInAccessibleWarehouses.Contains(p.Id));
+            //}
 
             var products = await productsQuery
                 .Select(p => new ProductDto
