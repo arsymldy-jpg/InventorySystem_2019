@@ -1,7 +1,9 @@
 ﻿using Inventory_Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inventory_Web.Controllers
@@ -17,20 +19,41 @@ namespace Inventory_Web.Controllers
         }
 
         // GET: Products - همه نقش‌ها می‌توانند مشاهده کنند
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
             try
             {
                 var products = await _apiService.GetAsync<List<ProductDto>>("api/Products");
-                return View(products ?? new List<ProductDto>());
+
+                if (products == null)
+                {
+                    products = new List<ProductDto>();
+                }
+
+                // اعمال فیلتر جستجو اگر مقدار داشته باشد
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    products = products.Where(p =>
+                        (p.Name != null && p.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase)) ||
+                        (p.MainCode != null && p.MainCode.Contains(searchString, StringComparison.OrdinalIgnoreCase)) ||
+                        (p.Name2 != null && p.Name2.Contains(searchString, StringComparison.OrdinalIgnoreCase)) ||
+                        (p.Code2 != null && p.Code2.Contains(searchString, StringComparison.OrdinalIgnoreCase)) ||
+                        (p.Code3 != null && p.Code3.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    ).ToList();
+
+                    ViewBag.SearchString = searchString;
+                }
+
+                return View(products);
             }
             catch (System.Exception ex)
             {
-                System.Console.WriteLine($"❌ خطا در دریافت محصولات: {ex.Message}");
-                TempData["Error"] = "خطا در دریافت لیست محصولات";
+                System.Console.WriteLine($"❌ خطا در دریافت کالاها: {ex.Message}");
+                TempData["Error"] = "خطا در دریافت لیست کالاها";
                 return View(new List<ProductDto>());
             }
         }
+
 
         // GET: Products/Details/5 - همه نقش‌ها می‌توانند مشاهده کنند
         public async Task<IActionResult> Details(int id)
@@ -47,7 +70,7 @@ namespace Inventory_Web.Controllers
             catch (System.Exception ex)
             {
                 System.Console.WriteLine($"❌ خطا در دریافت جزئیات: {ex.Message}");
-                TempData["Error"] = "خطا در دریافت اطلاعات محصول";
+                TempData["Error"] = "خطا در دریافت اطلاعات کالا";
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -72,11 +95,11 @@ namespace Inventory_Web.Controllers
                     var result = await _apiService.PostAsync<ProductDto>("api/Products", createProductDto);
                     if (result != null)
                     {
-                        TempData["Success"] = "محصول با موفقیت ایجاد شد";
+                        TempData["Success"] = "کالا با موفقیت ایجاد شد";
                         return RedirectToAction(nameof(Index));
                     }
                 }
-                TempData["Error"] = "خطا در ایجاد محصول";
+                TempData["Error"] = "خطا در ایجاد کالا";
                 return View(createProductDto);
             }
             catch (System.Exception ex)
@@ -102,18 +125,18 @@ namespace Inventory_Web.Controllers
                         }
                         else
                         {
-                            TempData["Error"] = "خطا در ایجاد محصول: " + errorJson;
+                            TempData["Error"] = "خطا در ایجاد کالا: " + errorJson;
                         }
                     }
                     catch
                     {
-                        TempData["Error"] = "خطا در ایجاد محصول";
+                        TempData["Error"] = "خطا در ایجاد کالا";
                     }
                 }
                 else
                 {
-                    System.Console.WriteLine($"❌ خطا در ایجاد محصول: {ex.Message}");
-                    TempData["Error"] = "خطا در ایجاد محصول";
+                    System.Console.WriteLine($"❌ خطا در ایجاد کالا: {ex.Message}");
+                    TempData["Error"] = "خطا در ایجاد کالا";
                 }
                 return View(createProductDto);
             }
@@ -135,7 +158,7 @@ namespace Inventory_Web.Controllers
             catch (System.Exception ex)
             {
                 System.Console.WriteLine($"❌ خطا در دریافت اطلاعات برای ویرایش: {ex.Message}");
-                TempData["Error"] = "خطا در دریافت اطلاعات محصول";
+                TempData["Error"] = "خطا در دریافت اطلاعات کالا";
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -158,11 +181,11 @@ namespace Inventory_Web.Controllers
                     var success = await _apiService.PutAsync<bool>($"api/Products/{id}", productDto);
                     if (success)
                     {
-                        TempData["Success"] = "محصول با موفقیت ویرایش شد";
+                        TempData["Success"] = "کالا با موفقیت ویرایش شد";
                         return RedirectToAction(nameof(Index));
                     }
                 }
-                TempData["Error"] = "خطا در ویرایش محصول";
+                TempData["Error"] = "خطا در ویرایش کالا";
                 return View(productDto);
             }
             catch (System.Exception ex)
@@ -188,18 +211,18 @@ namespace Inventory_Web.Controllers
                         }
                         else
                         {
-                            TempData["Error"] = "خطا در ویرایش محصول: " + errorJson;
+                            TempData["Error"] = "خطا در ویرایش کالا: " + errorJson;
                         }
                     }
                     catch
                     {
-                        TempData["Error"] = "خطا در ویرایش محصول";
+                        TempData["Error"] = "خطا در ویرایش کالا";
                     }
                 }
                 else
                 {
-                    System.Console.WriteLine($"❌ خطا در ویرایش محصول: {ex.Message}");
-                    TempData["Error"] = "خطا در ویرایش محصول";
+                    System.Console.WriteLine($"❌ خطا در ویرایش کالا: {ex.Message}");
+                    TempData["Error"] = "خطا در ویرایش کالا";
                 }
                 return View(productDto);
             }
@@ -216,17 +239,17 @@ namespace Inventory_Web.Controllers
                 var success = await _apiService.DeleteAsync($"api/Products/{id}");
                 if (success)
                 {
-                    TempData["Success"] = "محصول با موفقیت حذف شد";
+                    TempData["Success"] = "کالا با موفقیت حذف شد";
                 }
                 else
                 {
-                    TempData["Error"] = "خطا در حذف محصول";
+                    TempData["Error"] = "خطا در حذف کالا";
                 }
             }
             catch (System.Exception ex)
             {
-                System.Console.WriteLine($"❌ خطا در حذف محصول: {ex.Message}");
-                TempData["Error"] = "خطا در حذف محصول";
+                System.Console.WriteLine($"❌ خطا در حذف کالا: {ex.Message}");
+                TempData["Error"] = "خطا در حذف کالا";
             }
 
             return RedirectToAction(nameof(Index));

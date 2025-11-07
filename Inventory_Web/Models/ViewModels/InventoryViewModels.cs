@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Inventory_Web.Models.ViewModels
 {
-    // مدل محصول
+    // مدل کالا
     public class ProductViewModel
     {
         public int Id { get; set; }
@@ -82,7 +82,7 @@ namespace Inventory_Web.Models.ViewModels
         public bool IsActive { get; set; }
     }
 
-    // مدل ارتباط محصول و برند
+    // مدل ارتباط کالا و برند
     public class ProductBrandViewModel
     {
         public int Id { get; set; }

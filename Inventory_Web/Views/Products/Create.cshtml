@@ -1,12 +1,12 @@
 ﻿@model Inventory_Web.Controllers.CreateProductDto
 @{
-    ViewData["Title"] = "ایجاد محصول جدید";
+    ViewData["Title"] = "ایجاد کالا جدید";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">ایجاد محصول جدید</h3>
+        <h3 class="card-title">ایجاد کالا جدید</h3>
     </div>
     <div class="card-body">
         @if (TempData["Error"] != null)
@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label asp-for="Name" class="form-label">نام محصول *</label>
+                        <label asp-for="Name" class="form-label">نام کالا *</label>
                         <input asp-for="Name" class="form-control" required />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
@@ -78,7 +78,7 @@
 
             <div class="form-group">
                 <button type="submit" class="btn btn-success">
-                    <i class="fas fa-save"></i> ایجاد محصول
+                    <i class="fas fa-save"></i> ایجاد کالا
                 </button>
                 <a href="@Url.Action("Index")" class="btn btn-secondary">
                     <i class="fas fa-arrow-right"></i> بازگشت

@@ -250,15 +250,18 @@
             <li class="nav-item">
                 <a href="/Products" class="nav-link">
                     <i class="fas fa-boxes"></i>
-                    <span>محصولات</span>
+                    <span>کالاها</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="/Warehouses" class="nav-link">
-                    <i class="fas fa-warehouse"></i>
-                    <span>انبارها</span>
-                </a>
-            </li>
+            @if (User.IsInRole("Admin") || User.IsInRole("SeniorUser") || User.IsInRole("SeniorStorekeeper"))
+            {
+                <li class="nav-item">
+                    <a href="/Warehouses" class="nav-link">
+                        <i class="fas fa-warehouse"></i>
+                        <span>انبارها</span>
+                    </a>
+                </li>
+            }
             @if (User.IsInRole("Admin") || User.IsInRole("SeniorUser") || User.IsInRole("SeniorStorekeeper") || User.IsInRole("Storekeeper"))
             {
                 <li class="nav-item">

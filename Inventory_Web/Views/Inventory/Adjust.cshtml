@@ -17,11 +17,11 @@
             </div>
         }
 
-        <!-- اطلاعات محصول -->
+        <!-- اطلاعات کالا -->
         <div class="info-box mb-4">
             <h5>اطلاعات آیتم</h5>
             <div class="detail-row">
-                <div class="detail-label">محصول:</div>
+                <div class="detail-label">کالا:</div>
                 <div class="detail-value">@Model.ProductName</div>
             </div>
             <div class="detail-row">
@@ -51,7 +51,7 @@
             <input type="hidden" asp-for="BrandName" />
             <input type="hidden" asp-for="CurrentQuantity" />
 
-            <div class="row">
+            @*<div class="row">
                 <div class="col-md-6">
                     <div class="form-group mb-3">
                         <label asp-for="NewQuantity" class="form-label">موجودی جدید *</label>
@@ -66,7 +66,7 @@
                         <span asp-validation-for="Reason" class="text-danger"></span>
                     </div>
                 </div>
-            </div>
+            </div>*@
 
             <div class="form-group">
                 <button type="submit" class="btn btn-primary">

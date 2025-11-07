@@ -1,6 +1,7 @@
 ﻿using Inventory_Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,7 +19,8 @@ namespace Inventory_Web.Controllers
         }
 
         // GET: Inventory - مشاهده موجودی (فیلتر شده براساس دسترسی)
-        public async Task<IActionResult> Index()
+        // GET: Inventory - مشاهده موجودی (فیلتر شده براساس دسترسی)
+        public async Task<IActionResult> Index(string searchString)
         {
             try
             {
@@ -33,6 +35,17 @@ namespace Inventory_Web.Controllers
                     inventory = inventory?.Where(item => accessibleWarehouses.Contains(item.WarehouseId)).ToList();
                 }
 
+                // اعمال فیلتر جستجو اگر مقدار داشته باشد
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    inventory = inventory?.Where(item =>
+                        (item.ProductName != null && item.ProductName.Contains(searchString, StringComparison.OrdinalIgnoreCase)) ||
+                        (item.ProductMainCode != null && item.ProductMainCode.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    ).ToList();
+
+                    ViewBag.SearchString = searchString;
+                }
+
                 return View(inventory ?? new List<InventoryItemDto>());
             }
             catch (System.Exception ex)
@@ -42,6 +55,7 @@ namespace Inventory_Web.Controllers
                 return View(new List<InventoryItemDto>());
             }
         }
+
 
         // GET: Inventory/Warehouse/5 - موجودی یک انبار خاص (با بررسی دسترسی)
         public async Task<IActionResult> Warehouse(int id)
@@ -89,7 +103,7 @@ namespace Inventory_Web.Controllers
                     }
                 }
 
-                // دریافت اطلاعات محصول، انبار و برند
+                // دریافت اطلاعات کالا، انبار و برند
                 var product = await _apiService.GetAsync<InventoryProductInfo>($"api/Products/{productId}");
                 var warehouse = await _apiService.GetAsync<InventoryWarehouseInfo>($"api/Warehouses/{warehouseId}");
                 var brand = await _apiService.GetAsync<InventoryBrandInfo>($"api/Brands/{brandId}");
@@ -179,7 +193,8 @@ namespace Inventory_Web.Controllers
         {
             try
             {
-                var accessList = await _apiService.GetAsync<List<WarehouseAccessInfoModel>>($"api/WarehouseAccess/user-access");
+                // تغییر از 'user-access' به 'my-access'
+                var accessList = await _apiService.GetAsync<List<WarehouseAccessInfoModel>>($"api/WarehouseAccess/my-access");
                 return accessList?.Where(a => a.CanView).Select(a => a.WarehouseId).ToList() ?? new List<int>();
             }
             catch
@@ -192,7 +207,8 @@ namespace Inventory_Web.Controllers
         {
             try
             {
-                var accessList = await _apiService.GetAsync<List<WarehouseAccessInfoModel>>($"api/WarehouseAccess/user-access");
+                // تغییر از 'user-access' به 'my-access'
+                var accessList = await _apiService.GetAsync<List<WarehouseAccessInfoModel>>($"api/WarehouseAccess/my-access");
                 return accessList?.Any(a => a.WarehouseId == warehouseId && a.CanView) ?? false;
             }
             catch
@@ -205,7 +221,8 @@ namespace Inventory_Web.Controllers
         {
             try
             {
-                var accessList = await _apiService.GetAsync<List<WarehouseAccessInfoModel>>($"api/WarehouseAccess/user-access");
+                // تغییر از 'user-access' به 'my-access'
+                var accessList = await _apiService.GetAsync<List<WarehouseAccessInfoModel>>($"api/WarehouseAccess/my-access");
                 return accessList?.Any(a => a.WarehouseId == warehouseId && a.CanEdit) ?? false;
             }
             catch
@@ -221,6 +238,7 @@ namespace Inventory_Web.Controllers
         public int Id { get; set; }
         public int ProductId { get; set; }
         public string ProductName { get; set; }
+        public string ProductMainCode { get; set; } // افزودن این property
         public int WarehouseId { get; set; }
         public string WarehouseName { get; set; }
         public int BrandId { get; set; }
@@ -228,7 +246,6 @@ namespace Inventory_Web.Controllers
         public int Quantity { get; set; }
         public System.DateTime LastUpdated { get; set; }
     }
-
     public class AdjustInventoryViewModel
     {
         public int ProductId { get; set; }

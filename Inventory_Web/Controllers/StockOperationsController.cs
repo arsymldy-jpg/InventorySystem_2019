@@ -19,11 +19,23 @@ namespace Inventory_Web.Controllers
         }
 
         // GET: StockOperations - مشاهده تاریخچه عملیات (فیلتر شده براساس دسترسی)
-        public async Task<IActionResult> Index()
+        // GET: StockOperations - مشاهده تاریخچه عملیات (فیلتر شده براساس دسترسی)
+        public async Task<IActionResult> Index(string searchString)
         {
             try
             {
                 var operations = await _apiService.GetAsync<List<StockOperationDto>>("api/StockOperations");
+
+                // اعمال فیلتر جستجو اگر مقدار داشته باشد
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    operations = operations?.Where(op =>
+                        (op.ProductName != null && op.ProductName.Contains(searchString, StringComparison.OrdinalIgnoreCase)) ||
+                        (op.ProductMainCode != null && op.ProductMainCode.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    ).ToList();
+
+                    ViewBag.SearchString = searchString;
+                }
 
                 // برای تست: نمایش همه عملیات بدون فیلتر
                 return View(operations ?? new List<StockOperationDto>());
@@ -35,7 +47,6 @@ namespace Inventory_Web.Controllers
                 return View(new List<StockOperationDto>());
             }
         }
-
 
 
 
@@ -182,7 +193,7 @@ namespace Inventory_Web.Controllers
             // برای دیباگ
             await TestEndpoints();
 
-            // 1. محصولات - تمام محصولات
+            // 1. کالاها - تمام کالاها
             var products = await GetProductsForStorekeeper();
             ViewBag.Products = products;
 
@@ -194,11 +205,11 @@ namespace Inventory_Web.Controllers
             var brands = await GetBrandsForStorekeeper();
             ViewBag.Brands = brands;
 
-            Console.WriteLine($"📊 نتیجه نهایی - محصولات: {products.Count}, انبارها: {warehouses.Count}, برندها: {brands.Count}");
+            Console.WriteLine($"📊 نتیجه نهایی - کالاها: {products.Count}, انبارها: {warehouses.Count}, برندها: {brands.Count}");
         }
 
 
-        // دریافت تمام محصولات
+        // دریافت تمام کالاها
         private async Task<List<StockProductInfo>> GetProductsForStorekeeper()
         {
             try
@@ -208,7 +219,7 @@ namespace Inventory_Web.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"خطا در دریافت محصولات: {ex.Message}");
+                Console.WriteLine($"خطا در دریافت کالاها: {ex.Message}");
                 return new List<StockProductInfo>();
             }
         }
@@ -277,7 +288,7 @@ namespace Inventory_Web.Controllers
         {
             try
             {
-                // راه حل: استفاده مستقیم از endpoint محصولات که کار می‌کند
+                // راه حل: استفاده مستقیم از endpoint کالاها که کار می‌کند
                 var brands = await _apiService.GetAsync<List<BrandInfo>>("api/brands");
 
                 if (brands != null)
@@ -435,6 +446,7 @@ namespace Inventory_Web.Controllers
         public int Id { get; set; }
         public int ProductId { get; set; }
         public string ProductName { get; set; }
+        public string ProductMainCode { get; set; }
         public int WarehouseId { get; set; }
         public string WarehouseName { get; set; }
         public int BrandId { get; set; }

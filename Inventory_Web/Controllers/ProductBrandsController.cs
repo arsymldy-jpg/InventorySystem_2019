@@ -16,23 +16,23 @@ namespace Inventory_Web.Controllers
             _apiService = apiService;
         }
 
-        // GET: ProductBrands/Manage/5 - مدیریت برندهای یک محصول
+        // GET: ProductBrands/Manage/5 - مدیریت برندهای یک کالا
         [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper")]
         public async Task<IActionResult> Manage(int productId)
         {
             try
             {
-                System.Console.WriteLine($"🔍 شروع مدیریت برندها برای محصول: {productId}");
+                System.Console.WriteLine($"🔍 شروع مدیریت برندها برای کالا: {productId}");
 
-                // دریافت اطلاعات محصول با مدل مشخص
+                // دریافت اطلاعات کالا با مدل مشخص
                 var product = await _apiService.GetAsync<ProductInfo>($"api/Products/{productId}");
                 if (product == null)
                 {
-                    TempData["Error"] = "محصول یافت نشد";
+                    TempData["Error"] = "کالا یافت نشد";
                     return RedirectToAction("Index", "Products");
                 }
 
-                // دریافت برندهای محصول با مدل مشخص
+                // دریافت برندهای کالا با مدل مشخص
                 List<ProductBrandInfo> productBrands = new List<ProductBrandInfo>();
                 try
                 {
@@ -41,7 +41,7 @@ namespace Inventory_Web.Controllers
                 }
                 catch
                 {
-                    System.Console.WriteLine("⚠️ خطا در دریافت برندهای محصول - ادامه با لیست خالی");
+                    System.Console.WriteLine("⚠️ خطا در دریافت برندهای کالا - ادامه با لیست خالی");
                 }
 
                 // دریافت لیست تمام برندها با مدل مشخص
@@ -78,7 +78,7 @@ namespace Inventory_Web.Controllers
 
         // به فایل ProductBrandsController.cs در پروژه Web اضافه شود
 
-        // GET: api/ProductBrands/product/{productId} - دریافت برندهای یک محصول (برای استفاده در JavaScript)
+        // GET: api/ProductBrands/product/{productId} - دریافت برندهای یک کالا (برای استفاده در JavaScript)
         [HttpGet("api/ProductBrands/product/{productId}")]
         [AllowAnonymous] // یا [Authorize] اگر نیاز به احراز هویت دارد
         public async Task<IActionResult> GetProductBrandsApi(int productId)
@@ -90,14 +90,14 @@ namespace Inventory_Web.Controllers
             }
             catch (System.Exception ex)
             {
-                System.Console.WriteLine($"❌ خطا در دریافت برندهای محصول از API: {ex.Message}");
-                return StatusCode(500, new { error = "خطا در دریافت برندهای محصول" });
+                System.Console.WriteLine($"❌ خطا در دریافت برندهای کالا از API: {ex.Message}");
+                return StatusCode(500, new { error = "خطا در دریافت برندهای کالا" });
             }
         }
 
 
 
-        // POST: ProductBrands/AddBrand - افزودن برند به محصول
+        // POST: ProductBrands/AddBrand - افزودن برند به کالا
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper")]
@@ -110,31 +110,31 @@ namespace Inventory_Web.Controllers
 
                 if (result != null)
                 {
-                    TempData["Success"] = "برند با موفقیت به محصول اضافه شد";
+                    TempData["Success"] = "برند با موفقیت به کالا اضافه شد";
                 }
                 else
                 {
-                    TempData["Error"] = "خطا در افزودن برند به محصول";
+                    TempData["Error"] = "خطا در افزودن برند به کالا";
                 }
             }
             catch (System.Exception ex)
             {
-                System.Console.WriteLine($"❌ خطا در افزودن برند به محصول: {ex.Message}");
+                System.Console.WriteLine($"❌ خطا در افزودن برند به کالا: {ex.Message}");
 
-                if (ex.Message.Contains("این برند قبلاً به محصول اضافه شده است"))
+                if (ex.Message.Contains("این برند قبلاً به کالا اضافه شده است"))
                 {
-                    TempData["Error"] = "این برند قبلاً به محصول اضافه شده است";
+                    TempData["Error"] = "این برند قبلاً به کالا اضافه شده است";
                 }
                 else
                 {
-                    TempData["Error"] = "خطا در افزودن برند به محصول";
+                    TempData["Error"] = "خطا در افزودن برند به کالا";
                 }
             }
 
             return RedirectToAction("Manage", new { productId = productId });
         }
 
-        // POST: ProductBrands/Remove/5 - حذف برند از محصول
+        // POST: ProductBrands/Remove/5 - حذف برند از کالا
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,SeniorUser,SeniorStorekeeper")]
@@ -145,17 +145,17 @@ namespace Inventory_Web.Controllers
                 var success = await _apiService.DeleteAsync($"api/ProductBrands/{id}");
                 if (success)
                 {
-                    TempData["Success"] = "برند با موفقیت از محصول حذف شد";
+                    TempData["Success"] = "برند با موفقیت از کالا حذف شد";
                 }
                 else
                 {
-                    TempData["Error"] = "خطا در حذف برند از محصول";
+                    TempData["Error"] = "خطا در حذف برند از کالا";
                 }
             }
             catch (System.Exception ex)
             {
-                System.Console.WriteLine($"❌ خطا در حذف برند از محصول: {ex.Message}");
-                TempData["Error"] = "خطا در حذف برند از محصول";
+                System.Console.WriteLine($"❌ خطا در حذف برند از کالا: {ex.Message}");
+                TempData["Error"] = "خطا در حذف برند از کالا";
             }
 
             return RedirectToAction("Manage", new { productId = productId });

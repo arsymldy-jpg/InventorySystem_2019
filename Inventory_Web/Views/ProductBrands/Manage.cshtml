@@ -1,6 +1,6 @@
 ﻿@model Inventory_Web.Controllers.ProductBrandsManageViewModel
 @{
-    ViewData["Title"] = "مدیریت برندهای محصول";
+    ViewData["Title"] = "مدیریت برندهای کالا";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -9,22 +9,22 @@
         <div class="card">
             <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h3 class="card-title">مدیریت برندهای محصول</h3>
+                    <h3 class="card-title">مدیریت برندهای کالا</h3>
                     <div>
                         <a href="@Url.Action("Index", "Products")" class="btn btn-secondary">
-                            <i class="fas fa-arrow-right"></i> بازگشت به محصولات
+                            <i class="fas fa-arrow-right"></i> بازگشت به کالاها
                         </a>
                     </div>
                 </div>
             </div>
             <div class="card-body">
-                <!-- اطلاعات محصول -->
+                <!-- اطلاعات کالا -->
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <div class="info-box">
-                            <h5>اطلاعات محصول</h5>
+                            <h5>اطلاعات کالا</h5>
                             <div class="detail-row">
-                                <div class="detail-label">نام محصول:</div>
+                                <div class="detail-label">نام کالا:</div>
                                 <div class="detail-value">@Model.ProductName</div>
                             </div>
                             <div class="detail-row">
@@ -89,7 +89,7 @@
                 <!-- لیست برندهای فعلی -->
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">برندهای مرتبط با محصول</h5>
+                        <h5 class="card-title">برندهای مرتبط با کالا</h5>
                     </div>
                     <div class="card-body">
                         @if (Model.CurrentBrands.Count == 0)
@@ -97,7 +97,7 @@
                             <div class="alert alert-warning text-center">
                                 <i class="fas fa-tags fa-2x mb-3"></i>
                                 <h5>هیچ برندی مرتبط نشده است</h5>
-                                <p class="mb-0">هنوز برندی به این محصول اضافه نشده است.</p>
+                                <p class="mb-0">هنوز برندی به این کالا اضافه نشده است.</p>
                             </div>
                         }
                         else
@@ -122,7 +122,7 @@
                                                 <td>@(brand?.Description ?? "-")</td>
                                                 <td>
                                                     <form asp-action="Remove" method="post"
-                                                          onsubmit="return confirm('آیا از حذف این برند از محصول اطمینان دارید؟');">
+                                                          onsubmit="return confirm('آیا از حذف این برند از کالا اطمینان دارید؟');">
                                                         <input type="hidden" name="id" value="@productBrand.Id" />
                                                         <input type="hidden" name="productId" value="@Model.ProductId" />
                                                         @Html.AntiForgeryToken()

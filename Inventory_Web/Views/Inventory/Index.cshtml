@@ -30,12 +30,52 @@
             </div>
         }
 
+        <!-- فرم جستجو -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <form method="get" action="@Url.Action("Index")" class="d-flex">
+                    <div class="input-group">
+                        <input type="text" name="searchString" class="form-control"
+                               placeholder="جستجو بر اساس نام کالا یا کد کالا..."
+                               value="@Context.Request.Query["searchString"]">
+                        <button class="btn btn-outline-primary" type="submit">
+                            <i class="fas fa-search"></i> جستجو
+                        </button>
+                        @if (!string.IsNullOrEmpty(Context.Request.Query["searchString"]))
+                        {
+                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> پاک کردن
+                            </a>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Context.Request.Query["searchString"]) && Model.Count > 0)
+        {
+            <div class="alert alert-info mb-3">
+                <i class="fas fa-info-circle"></i>
+                <strong>نتایج جستجو برای "@Context.Request.Query["searchString"]"</strong>
+                <span class="badge bg-info me-2">@Model.Count نتیجه یافت شد</span>
+            </div>
+        }
+
         @if (Model.Count == 0)
         {
             <div class="alert alert-warning text-center">
                 <i class="fas fa-boxes fa-2x mb-3"></i>
-                <h5>هیچ موجودی یافت نشد</h5>
-                <p class="mb-0">هنوز موجودی در سیستم ثبت نشده است.</p>
+                @if (!string.IsNullOrEmpty(Context.Request.Query["searchString"]))
+                {
+                    <h5>هیچ موجودی با مشخصات جستجو شده یافت نشد</h5>
+                    <p class="mb-0">هیچ موجودی با عبارت "@Context.Request.Query["searchString"]" یافت نشد.</p>
+                    <a href="@Url.Action("Index")" class="btn btn-primary mt-2">مشاهده همه موجودی‌ها</a>
+                }
+                else
+                {
+                    <h5>هیچ موجودی یافت نشد</h5>
+                    <p class="mb-0">هنوز موجودی در سیستم ثبت نشده است.</p>
+                }
             </div>
         }
         else
@@ -44,41 +84,45 @@
                 <table class="table table-bordered table-striped table-hover">
                     <thead class="table-dark">
                         <tr>
-                            <th>محصول</th>
+                            <th>کد اصلی</th> <!-- ستون جدید برای کد اصلی -->
+                            <th>نام کالا</th>
                             <th>انبار</th>
                             <th>برند</th>
                             <th>موجودی</th>
                             <th>آخرین بروزرسانی</th>
-                            <th>عملیات</th>
+                            @*<th>عملیات</th>*@
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            <tr>
-                                <td>
-                                    <strong>@item.ProductName</strong>
-                                </td>
-                                <td>@item.WarehouseName</td>
-                                <td>@item.BrandName</td>
-                                <td>
-                                    <span class="badge @(item.Quantity > 0 ? "bg-success" : "bg-warning")">
-                                        @item.Quantity
-                                    </span>
-                                </td>
-                                <td>@item.LastUpdated.ToString("yyyy/MM/dd HH:mm")</td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        @if (User.IsInRole("Admin") || User.IsInRole("SeniorUser") || User.IsInRole("SeniorStorekeeper") || User.IsInRole("Storekeeper"))
-                                        {
-                                            <a href="@Url.Action("Adjust", new { productId = item.ProductId, warehouseId = item.WarehouseId, brandId = item.BrandId })"
-                                               class="btn btn-warning" title="تنظیم موجودی">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td>
+                                <strong>@item.ProductMainCode</strong> <!-- نمایش کد اصلی -->
+                            </td>
+                            <td>
+                                <strong>@item.ProductName</strong>
+                            </td>
+                            <td>@item.WarehouseName</td>
+                            <td>@item.BrandName</td>
+                            <td>
+                                <span class="badge @(item.Quantity > 0 ? "bg-success" : "bg-warning")">
+                                    @item.Quantity
+                                </span>
+                            </td>
+                            <td>@item.LastUpdated.ToString("yyyy/MM/dd HH:mm")</td>
+                            @*<td>
+            <div class="btn-group btn-group-sm">
+                @if (User.IsInRole("Admin") || User.IsInRole("SeniorUser") || User.IsInRole("SeniorStorekeeper") || User.IsInRole("Storekeeper"))
+                {
+                    <a href="@Url.Action("Adjust", new { productId = item.ProductId, warehouseId = item.WarehouseId, brandId = item.BrandId })"
+                       class="btn btn-warning" title="تنظیم موجودی">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                }
+            </div>
+        </td>*@
+                        </tr>
                         }
                     </tbody>
                 </table>

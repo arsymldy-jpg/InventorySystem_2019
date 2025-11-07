@@ -24,9 +24,9 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group mb-3">
-                        <label asp-for="ProductId" class="form-label">محصول *</label>
+                        <label asp-for="ProductId" class="form-label">کالا *</label>
                         <select asp-for="ProductId" class="form-control" id="productSelect" required>
-                            <option value="">-- انتخاب محصول --</option>
+                            <option value="">-- انتخاب کالا --</option>
                             @foreach (var product in products)
                             {
                                 <option value="@product.Id" data-code="@product.MainCode">@product.Name - @product.MainCode</option>
@@ -52,10 +52,10 @@
                     <div class="form-group mb-3">
                         <label asp-for="BrandId" class="form-label">برند *</label>
                         <select asp-for="BrandId" class="form-control" id="brandSelect" required disabled>
-                            <option value="">-- ابتدا محصول را انتخاب کنید --</option>
+                            <option value="">-- ابتدا کالا را انتخاب کنید --</option>
                         </select>
                         <span asp-validation-for="BrandId" class="text-danger"></span>
-                        <small class="text-muted" id="brandHelp">برندهای مرتبط با محصول انتخاب شده نمایش داده می‌شوند</small>
+                        <small class="text-muted" id="brandHelp">برندهای مرتبط با کالا انتخاب شده نمایش داده می‌شوند</small>
                     </div>
                 </div>
             </div>
@@ -96,7 +96,7 @@
             const brandSelect = $('#brandSelect');
             const brandHelp = $('#brandHelp');
 
-            // وقتی محصول تغییر می‌کند
+            // وقتی کالا تغییر می‌کند
             productSelect.change(function () {
                 const productId = $(this).val();
 
@@ -105,7 +105,7 @@
                     brandSelect.prop('disabled', true).html('<option value="">در حال بارگذاری برندها...</option>');
                     brandHelp.text('در حال دریافت برندهای مرتبط...');
 
-                    // دریافت برندهای مرتبط با محصول
+                    // دریافت برندهای مرتبط با کالا
                     $.get(`/api/ProductBrands/product/${productId}`, function (brands) {
                         if (brands && brands.length > 0) {
                             brandSelect.html('<option value="">-- انتخاب برند --</option>');
@@ -115,20 +115,20 @@
                             brandSelect.prop('disabled', false);
                             brandHelp.text(`تعداد ${brands.length} برند مرتبط یافت شد`);
                         } else {
-                            brandSelect.html('<option value="">-- هیچ برندی برای این محصول تعریف نشده --</option>');
+                            brandSelect.html('<option value="">-- هیچ برندی برای این کالا تعریف نشده --</option>');
                             brandSelect.prop('disabled', true);
-                            brandHelp.text('⚠️ هیچ برندی برای این محصول تعریف نشده است. لطفاً از صفحه مدیریت محصول، برندها را اضافه کنید.');
+                            brandHelp.text('⚠️ هیچ برندی برای این کالا تعریف نشده است. لطفاً از صفحه مدیریت کالا، برندها را اضافه کنید.');
                         }
                     }).fail(function (xhr, status, error) {
                         console.error('خطا در دریافت برندها:', error);
                         brandSelect.html('<option value="">-- خطا در دریافت برندها --</option>');
-                        brandHelp.text('❌ خطا در دریافت برندهای محصول');
+                        brandHelp.text('❌ خطا در دریافت برندهای کالا');
                     });
                 } else {
-                    // اگر محصولی انتخاب نشده
-                    brandSelect.html('<option value="">-- ابتدا محصول را انتخاب کنید --</option>');
+                    // اگر کالای انتخاب نشده
+                    brandSelect.html('<option value="">-- ابتدا کالا را انتخاب کنید --</option>');
                     brandSelect.prop('disabled', true);
-                    brandHelp.text('برندهای مرتبط با محصول انتخاب شده نمایش داده می‌شوند');
+                    brandHelp.text('برندهای مرتبط با کالا انتخاب شده نمایش داده می‌شوند');
                 }
             });
 
@@ -139,7 +139,7 @@
 
                 if (productId && (!brandId || brandSelect.prop('disabled'))) {
                     e.preventDefault();
-                    alert('⚠️ لطفاً یک برند معتبر انتخاب کنید. اگر برندی موجود نیست، ابتدا از صفحه مدیریت محصول، برندها را اضافه کنید.');
+                    alert('⚠️ لطفاً یک برند معتبر انتخاب کنید. اگر برندی موجود نیست، ابتدا از صفحه مدیریت کالا، برندها را اضافه کنید.');
                     return false;
                 }
             });

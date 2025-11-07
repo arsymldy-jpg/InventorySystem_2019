@@ -26,9 +26,9 @@
             <div class="row">
                 <div class="col-md-3">
                     <div class="form-group mb-3">
-                        <label asp-for="ProductId" class="form-label">محصول *</label>
+                        <label asp-for="ProductId" class="form-label">کالا *</label>
                         <select asp-for="ProductId" class="form-control" id="productSelect" required>
-                            <option value="">-- انتخاب محصول --</option>
+                            <option value="">-- انتخاب کالا --</option>
                             @foreach (var product in products)
                             {
                                 <option value="@product.Id">@product.Name - @product.MainCode</option>
@@ -55,10 +55,10 @@
                     <div class="form-group mb-3">
                         <label asp-for="BrandId" class="form-label">برند *</label>
                         <select asp-for="BrandId" class="form-control" id="brandSelect" required disabled>
-                            <option value="">-- ابتدا محصول را انتخاب کنید --</option>
+                            <option value="">-- ابتدا کالا را انتخاب کنید --</option>
                         </select>
                         <span asp-validation-for="BrandId" class="text-danger"></span>
-                        <small class="text-muted" id="brandHelp">برندهای مرتبط با محصول انتخاب شده نمایش داده می‌شوند</small>
+                        <small class="text-muted" id="brandHelp">برندهای مرتبط با کالا انتخاب شده نمایش داده می‌شوند</small>
                     </div>
                 </div>
                 <div class="col-md-3">

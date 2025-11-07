@@ -1,6 +1,6 @@
 ﻿@model Inventory_Web.Controllers.ProductDto
 @{
-    ViewData["Title"] = "جزئیات محصول";
+    ViewData["Title"] = "جزئیات کالا";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -8,7 +8,7 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">جزئیات محصول</h3>
+                <h3 class="card-title">جزئیات کالا</h3>
             </div>
             <div class="card-body">
                 @if (TempData["Error"] != null)
@@ -23,7 +23,7 @@
                     </div>
 
                     <div class="detail-row">
-                        <div class="detail-label">نام محصول:</div>
+                        <div class="detail-label">نام کالا:</div>
                         <div class="detail-value">@Model.Name</div>
                     </div>
 
@@ -42,14 +42,14 @@
                         <div class="detail-value">@Model.Code3</div>
                     </div>
 
-                    <div class="detail-row">
+                    @*<div class="detail-row">
                         <div class="detail-label">موجودی کل:</div>
                         <div class="detail-value">
                             <span class="badge @(Model.TotalQuantity > Model.ReorderPoint ? "bg-success" : "bg-warning")">
                                 @Model.TotalQuantity
                             </span>
                         </div>
-                    </div>
+                    </div>*@
 
                     <div class="detail-row">
                         <div class="detail-label">نقطه سفارش:</div>

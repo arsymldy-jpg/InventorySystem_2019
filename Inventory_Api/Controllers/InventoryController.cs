@@ -55,6 +55,7 @@ namespace Inventory_Api.Controllers
                     Id = i.Id,
                     ProductId = i.ProductId,
                     ProductName = i.Product.Name,
+                    ProductMainCode = i.Product.MainCode,
                     WarehouseId = i.WarehouseId,
                     WarehouseName = i.Warehouse.Name,
                     BrandId = i.BrandId,
