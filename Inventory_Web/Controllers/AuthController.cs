@@ -47,6 +47,12 @@ namespace Inventory_Web.Controllers
                     // ذخیره توکن در سشن
                     HttpContext.Session.SetString("Token", result.Token);
 
+                    // ذخیره توکن در ViewBag برای انتقال به صفحه
+                    ViewBag.Token = result.Token;
+
+                    // یا در TempData
+                    TempData["Token"] = result.Token;
+
                     // ایجاد claims برای احراز هویت Cookie
                     var claims = new[]
                     {

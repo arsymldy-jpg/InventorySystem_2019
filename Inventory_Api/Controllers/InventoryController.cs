@@ -198,5 +198,60 @@ namespace Inventory_Api.Controllers
                 product.ModifiedDate = DateTime.UtcNow;
             }
         }
+
+        // GET: api/Inventory/warehouses-with-stock/{productId} - انبارهای دارای موجودی یک کالا
+        [HttpGet("warehouses-with-stock/{productId}")]
+        public async Task<ActionResult<IEnumerable<WarehouseStockInfoDto>>> GetWarehousesWithStock(int productId)
+        {
+            
+                var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var currentUserRoleId = int.Parse(User.FindFirst("RoleId")?.Value);
+                var currentUserRole = Roles.GetRoleName(currentUserRoleId);
+            //Console.WriteLine(currentUserId);
+            //return StatusCode(511, currentUserRole);
+
+            try
+            {
+                // دریافت انبارهای قابل ویرایش برای کاربر
+                IQueryable<int> editableWarehouseIds;
+
+                if (currentUserRole == Roles.Storekeeper)
+                {
+                    editableWarehouseIds = _context.WarehouseAccesses
+                        .Where(wa => wa.UserId == currentUserId && wa.CanEdit)
+                        .Select(wa => wa.WarehouseId);
+                }
+                else
+                {
+                    // سایر نقش‌ها به همه انبارها دسترسی دارند
+                    editableWarehouseIds = _context.Warehouses
+                        .Where(w => w.IsActive)
+                        .Select(w => w.Id);
+                }
+
+                // انبارهایی که کاربر دسترسی دارد و کالا در آنها موجود است
+                var warehousesWithStock = await _context.Inventories
+                    .Include(i => i.Warehouse)
+                    .Where(i => i.ProductId == productId &&
+                               i.Quantity > 0 &&
+                               editableWarehouseIds.Contains(i.WarehouseId))
+                    .Select(i => new WarehouseStockInfoDto
+                    {
+                        WarehouseId = i.WarehouseId,
+                        WarehouseName = i.Warehouse.Name,
+                        Quantity = i.Quantity
+                    })
+                    .Distinct() // حذف موارد تکراری
+                    .ToListAsync();
+
+                return Ok(warehousesWithStock);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ خطا در دریافت انبارهای دارای موجودی: {ex.Message}");
+                return StatusCode(500, "خطا در دریافت اطلاعات انبارها");
+            }
+        }
+
     }
 }

@@ -98,17 +98,22 @@ namespace Inventory_Web.Controllers
             }
         }
 
-        // GET: StockOperations/Issue - فرم خروج کالا (فقط انبارهای مجاز)
+        // GET: StockOperations/Issue - فرم خروج کالا
         public async Task<IActionResult> Issue()
         {
-            await LoadViewDataForFormsWithAccess();
+            // فقط کالاها و مراکز هزینه را بارگذاری می‌کنیم
+            var products = await GetProductsForStorekeeper();
+            ViewBag.Products = products;
 
-            // دریافت مراکز هزینه برای خروج کالا
             var costCentersList = await _apiService.GetAsync<List<CostCenterDto>>("api/CostCenters");
             ViewBag.CostCenters = costCentersList ?? new List<CostCenterDto>();
 
+            // انبارها به صورت پویا بارگذاری می‌شوند
+            ViewBag.Warehouses = new List<StockWarehouseInfo>();
+
             return View();
         }
+
 
         // POST: StockOperations/Issue - ثبت خروج کالا
         [HttpPost]

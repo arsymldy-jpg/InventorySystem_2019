@@ -8,6 +8,7 @@
     var costCenters = ViewBag.CostCenters as List<Inventory_Web.Controllers.CostCenterDto> ?? new List<Inventory_Web.Controllers.CostCenterDto>();
 }
 
+
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">خروج کالا از انبار</h3>
@@ -39,7 +40,8 @@
                 <div class="col-md-3">
                     <div class="form-group mb-3">
                         <label asp-for="WarehouseId" class="form-label">انبار *</label>
-                        <select asp-for="WarehouseId" class="form-control" required>
+                        <!-- اضافه کردن id="warehouseSelect" در این خط -->
+                        <select asp-for="WarehouseId" class="form-control" id="warehouseSelect" required>
                             <option value="">-- انتخاب انبار --</option>
                             @foreach (var warehouse in warehouses)
                             {
@@ -108,19 +110,163 @@
         $(document).ready(function () {
             const productSelect = $('#productSelect');
             const brandSelect = $('#brandSelect');
+            const warehouseSelect = $('#warehouseSelect');
             const brandHelp = $('#brandHelp');
+            const warehouseHelp = $('#warehouseHelp');
 
-            // وقتی محصول تغییر می‌کند
-            productSelect.change(function () {
-                const productId = $(this).val();
+            // تابع برای دریافت توکن از sessionStorage
+            function getToken() {
+                try {
+                    // روش 1: از sessionStorage
+                    let token = sessionStorage.getItem('token');
+                    if (token && token !== 'null' && token !== 'undefined') {
+                        console.log('✅ توکن از sessionStorage دریافت شد');
+                        return token;
+                    }
 
-                if (productId) {
-                    // غیرفعال کردن dropdown برندها در حین لود
-                    brandSelect.prop('disabled', true).html('<option value="">در حال بارگذاری برندها...</option>');
-                    brandHelp.text('در حال دریافت برندهای مرتبط...');
+                    // روش 2: از localStorage
+                    token = localStorage.getItem('token');
+                    if (token && token !== 'null' && token !== 'undefined') {
+                        console.log('✅ توکن از localStorage دریافت شد');
+                        return token;
+                    }
 
-                    // دریافت برندهای مرتبط با محصول
-                    $.get(`/api/ProductBrands/product/${productId}`, function (brands) {
+                    // روش 3: از cookies
+                    const cookies = document.cookie.split(';');
+                    for (let cookie of cookies) {
+                        const [name, value] = cookie.trim().split('=');
+                        if (name === 'InventoryToken' || name === 'token') {
+                            console.log('✅ توکن از cookie دریافت شد');
+                            return value;
+                        }
+                    }
+
+                    console.warn('⚠️ توکن احراز هویت یافت نشد');
+                    return null;
+                } catch (error) {
+                    console.error('❌ خطا در دریافت توکن:', error);
+                    return null;
+                }
+            }
+
+            function getApiBaseUrl() {
+                return document.getElementById('apiBaseUrl')?.value;// || 'https://localhost:44342';
+            }
+
+            const apiBaseUrl = getApiBaseUrl();
+
+            // تابع برای دریافت انبارهای دارای موجودی
+            // تابع برای دریافت انبارهای دارای موجودی
+            function loadWarehousesWithStock(productId) {
+                if (!productId) return;
+
+                warehouseSelect.prop('disabled', true).html('<option value="">در حال بارگذاری انبارها...</option>');
+                warehouseHelp.text('در حال دریافت انبارهای دارای موجودی...');
+
+                const token = getToken();
+
+                if (!token) {
+                    warehouseSelect.html('<option value="">-- خطا: توکن احراز هویت یافت نشد --</option>');
+                    warehouseHelp.text('❌ خطا در احراز هویت');
+                    return;
+                }
+
+                $.ajax({
+                    url: `${apiBaseUrl}/api/Inventory/warehouses-with-stock/${productId}`,
+                    type: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    success: function (warehouses) {
+                        console.log('📦 پاسخ انبارها (خام):', warehouses);
+
+                        if (warehouses && warehouses.length > 0) {
+                            console.log('🔍 ساختار اولین آیتم:', warehouses[0]);
+                            console.log('🔍 کلیدهای موجود:', Object.keys(warehouses[0]));
+
+                            // پاک کردن و اضافه کردن options
+                            warehouseSelect.empty().append('<option value="">-- انتخاب انبار --</option>');
+
+                            let addedOptions = 0;
+                            warehouses.forEach(function (warehouse, index) {
+                                console.log(`📝 پردازش انبار ${index}:`, warehouse);
+
+                                // استفاده از property names با حروف کوچک
+                                const warehouseId = warehouse.warehouseId;
+                                const warehouseName = warehouse.warehouseName;
+                                const quantity = warehouse.quantity;
+
+                                console.log(`📊 مقادیر استخراج شده - ID: ${warehouseId}, Name: ${warehouseName}, Qty: ${quantity}`);
+
+                                if (warehouseId && warehouseName) {
+                                    const optionText = `${warehouseName} (موجودی: ${quantity})`;
+                                    const $option = $('<option></option>')
+                                        .val(warehouseId)
+                                        .text(optionText);
+
+                                    warehouseSelect.append($option);
+                                    addedOptions++;
+                                    console.log(`✅ option اضافه شد: ${optionText}`);
+                                }
+                            });
+
+                            // تأخیر کوچک برای اطمینان از به‌روزرسانی DOM
+                            setTimeout(function () {
+                                const finalOptionCount = warehouseSelect.find('option').length;
+                                console.log(`✅ تعداد نهایی options در dropdown: ${finalOptionCount}`);
+                                console.log(`✅ تعداد options اضافه شده: ${addedOptions}`);
+
+                                if (finalOptionCount > 1) {
+                                    warehouseSelect.prop('disabled', false);
+                                    warehouseHelp.text(`تعداد ${warehouses.length} انبار دارای موجودی یافت شد`);
+                                    console.log('🎉 dropdown انبارها با موفقیت پر شد');
+                                } else {
+                                    warehouseSelect.html('<option value="">-- خطا در نمایش انبارها --</option>');
+                                    warehouseHelp.text('❌ خطا در نمایش انبارها');
+                                    console.error('❌ خطا: options اضافه نشدند');
+                                }
+                            }, 100);
+
+                        } else {
+                            warehouseSelect.html('<option value="">-- هیچ انبار دارای موجودی برای این کالا یافت نشد --</option>');
+                            warehouseSelect.prop('disabled', true);
+                            warehouseHelp.text('⚠️ هیچ انبار دارای موجودی برای این کالا یافت نشد.');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('❌ خطا در دریافت انبارها:', error);
+                        console.log('📊 وضعیت:', status);
+                        console.log('📋 وضعیت HTTP:', xhr.status);
+                        console.log('📋 پاسخ خطا:', xhr.responseText);
+
+                        warehouseSelect.html('<option value="">-- خطا در دریافت انبارها --</option>');
+                        warehouseHelp.text('❌ خطا در دریافت انبارهای دارای موجودی');
+
+                        if (xhr.status === 401) {
+                            alert('⚠️ لطفاً دوباره وارد سیستم شوید');
+                            window.location.href = '/Auth/Login';
+                        }
+                    }
+                });
+            }
+
+
+            // تابع برای دریافت برندهای مرتبط
+            function loadProductBrands(productId) {
+                if (!productId) return;
+
+                brandSelect.prop('disabled', true).html('<option value="">در حال بارگذاری برندها...</option>');
+                brandHelp.text('در حال دریافت برندهای مرتبط...');
+
+                const token = getToken();
+
+                $.ajax({
+                    url: `/api/ProductBrands/product/${productId}`,
+                    type: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    success: function (brands) {
                         if (brands && brands.length > 0) {
                             brandSelect.html('<option value="">-- انتخاب برند --</option>');
                             brands.forEach(function (brand) {
@@ -129,34 +275,67 @@
                             brandSelect.prop('disabled', false);
                             brandHelp.text(`تعداد ${brands.length} برند مرتبط یافت شد`);
                         } else {
-                            brandSelect.html('<option value="">-- هیچ برندی برای این محصول تعریف نشده --</option>');
+                            brandSelect.html('<option value="">-- هیچ برندی برای این کالا تعریف نشده --</option>');
                             brandSelect.prop('disabled', true);
-                            brandHelp.text('⚠️ هیچ برندی برای این محصول تعریف نشده است. لطفاً از صفحه مدیریت محصول، برندها را اضافه کنید.');
+                            brandHelp.text('⚠️ هیچ برندی برای این کالا تعریف نشده است.');
                         }
-                    }).fail(function (xhr, status, error) {
+                    },
+                    error: function (xhr, status, error) {
                         console.error('خطا در دریافت برندها:', error);
                         brandSelect.html('<option value="">-- خطا در دریافت برندها --</option>');
-                        brandHelp.text('❌ خطا در دریافت برندهای محصول');
-                    });
+                        brandHelp.text('❌ خطا در دریافت برندهای کالا');
+                    }
+                });
+            }
+
+            // وقتی کالا تغییر می‌کند
+            productSelect.change(function () {
+                const productId = $(this).val();
+
+                if (productId) {
+                    // بارگذاری برندها و انبارها
+                    loadProductBrands(productId);
+                    loadWarehousesWithStock(productId);
                 } else {
-                    // اگر محصولی انتخاب نشده
-                    brandSelect.html('<option value="">-- ابتدا محصول را انتخاب کنید --</option>');
+                    // اگر کالایی انتخاب نشده
+                    brandSelect.html('<option value="">-- ابتدا کالا را انتخاب کنید --</option>');
                     brandSelect.prop('disabled', true);
-                    brandHelp.text('برندهای مرتبط با محصول انتخاب شده نمایش داده می‌شوند');
+                    brandHelp.text('برندهای مرتبط با کالای انتخاب شده نمایش داده می‌شوند');
+
+                    warehouseSelect.html('<option value="">-- ابتدا کالا را انتخاب کنید --</option>');
+                    warehouseSelect.prop('disabled', true);
+                    warehouseHelp.text('انبارهای دارای موجودی کالای انتخاب شده نمایش داده می‌شوند');
                 }
             });
 
-            // مدیریت ارسال فرم - بررسی انتخاب برند
+            // مدیریت ارسال فرم
             $('#issueForm').submit(function (e) {
                 const productId = productSelect.val();
                 const brandId = brandSelect.val();
+                const warehouseId = warehouseSelect.val();
+
+                let hasError = false;
+                let errorMessage = '';
 
                 if (productId && (!brandId || brandSelect.prop('disabled'))) {
+                    errorMessage += '⚠️ لطفاً یک برند معتبر انتخاب کنید.\n';
+                    hasError = true;
+                }
+
+                if (productId && (!warehouseId || warehouseSelect.prop('disabled'))) {
+                    errorMessage += '⚠️ لطفاً یک انبار معتبر انتخاب کنید.\n';
+                    hasError = true;
+                }
+
+                if (hasError) {
                     e.preventDefault();
-                    alert('⚠️ لطفاً یک برند معتبر انتخاب کنید. اگر برندی موجود نیست، ابتدا از صفحه مدیریت محصول، برندها را اضافه کنید.');
+                    alert(errorMessage);
                     return false;
                 }
             });
+
+            // تست اولیه: چک کردن وجود توکن
+            console.log('🔐 وضعیت احراز هویت:', getToken() ? '✅ توکن موجود' : '❌ توکن یافت نشد');
         });
     </script>
 }

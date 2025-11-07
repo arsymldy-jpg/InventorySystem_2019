@@ -83,6 +83,8 @@ namespace Inventory_Web
                 endpoints.MapControllerRoute(
                     name: "api",
                     pattern: "api/{controller}/{action}/{id?}");
+
+                endpoints.MapControllers(); // این خط باید وجود داشته باشد
             });
         }
     }
