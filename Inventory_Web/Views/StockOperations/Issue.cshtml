@@ -27,11 +27,11 @@
                 <div class="col-md-3">
                     <div class="form-group mb-3">
                         <label asp-for="ProductId" class="form-label">کالا *</label>
-                        <select asp-for="ProductId" class="form-control" id="productSelect" required>
+                        <select asp-for="ProductId" class="form-control select2-search" id="productSelect" required>
                             <option value="">-- انتخاب کالا --</option>
                             @foreach (var product in products)
                             {
-                                <option value="@product.Id">@product.Name - @product.MainCode</option>
+                                <option value="@product.Id" data-code="@product.MainCode">@product.Name - @product.MainCode</option>
                             }
                         </select>
                         <span asp-validation-for="ProductId" class="text-danger"></span>
@@ -105,9 +105,84 @@
     </div>
 </div>
 
+@section Styles {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            padding: 6px 12px;
+        }
+
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 36px;
+            }
+    </style>
+}
+
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/i18n/fa.min.js"></script>
+
     <script>
         $(document).ready(function () {
+            // راه‌اندازی Select2 برای dropdown کالاها
+            $('#productSelect').select2({
+                placeholder: "جستجو و انتخاب کالا...",
+                allowClear: true,
+                language: "fa",
+                width: '100%',
+                matcher: function (params, data) {
+                    // اگر عبارت جستجو خالی است، همه موارد را نشان بده
+                    if ($.trim(params.term) === '') {
+                        return data;
+                    }
+
+                    // جستجو هم در نام کالا و هم در کد اصلی
+                    var term = params.term.toLowerCase();
+                    var productName = data.text ? data.text.toLowerCase() : '';
+
+                    // دریافت کد محصول و اطمینان از اینکه رشته است
+                    var productCodeData = $(data.element).data('code');
+                    var productCode = '';
+                    if (productCodeData) {
+                        productCode = productCodeData.toString().toLowerCase();
+                    }
+
+                    if (productName.indexOf(term) > -1 || productCode.indexOf(term) > -1) {
+                        return data;
+                    }
+
+                    return null;
+                },
+                templateResult: function (data) {
+                    if (!data.id) {
+                        return data.text;
+                    }
+
+                    // دریافت کد محصول و اطمینان از نمایش صحیح
+                    var productCodeData = $(data.element).data('code');
+                    var displayCode = '---';
+                    if (productCodeData) {
+                        displayCode = productCodeData.toString();
+                    }
+
+                    var $result = $(
+                        '<div>' +
+                        '<span>' + data.text + '</span>' +
+                        '<small style="display: block; color: #6c757d; font-size: 0.875em;">کد: ' + displayCode + '</small>' +
+                        '</div>'
+                    );
+                    return $result;
+                },
+                templateSelection: function (data) {
+                    // نمایش مختصر در حالت انتخاب شده
+                    if (!data.id) {
+                        return data.text;
+                    }
+                    return data.text;
+                }
+            });
+
             const productSelect = $('#productSelect');
             const brandSelect = $('#brandSelect');
             const warehouseSelect = $('#warehouseSelect');
@@ -155,7 +230,6 @@
 
             const apiBaseUrl = getApiBaseUrl();
 
-            // تابع برای دریافت انبارهای دارای موجودی
             // تابع برای دریافت انبارهای دارای موجودی
             function loadWarehousesWithStock(productId) {
                 if (!productId) return;
@@ -288,8 +362,8 @@
                 });
             }
 
-            // وقتی کالا تغییر می‌کند
-            productSelect.change(function () {
+            // وقتی کالا تغییر می‌کند - استفاده از event Select2
+            productSelect.on('change', function () {
                 const productId = $(this).val();
 
                 if (productId) {
