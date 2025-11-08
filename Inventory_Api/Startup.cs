@@ -119,6 +119,10 @@ namespace Inventory_Api
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Inventory API v1"));
             }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+            }
 
             app.UseRouting();
 

@@ -364,9 +364,9 @@
                             <li><hr class="dropdown-divider"></li>
                             <!-- در بخش dropdown منوی کاربر -->
                             <li>
-                                <form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm" style="display: inline;">
+                                <form action="/Auth/Logout" method="get" style="display: inline;">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="dropdown-item">
+                                    <button type="submit" class="dropdown-item text-danger">
                                         <i class="fas fa-sign-out-alt me-2"></i>خروج
                                     </button>
                                 </form>

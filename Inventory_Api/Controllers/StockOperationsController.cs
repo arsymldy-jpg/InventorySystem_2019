@@ -357,5 +357,61 @@ namespace Inventory_Api.Controllers
                 product.ModifiedDate = DateTime.UtcNow;
             }
         }
+
+
+        // GET: api/StockOperations/recent
+        [HttpGet("recent")]
+        public async Task<IActionResult> GetRecentOperations([FromQuery] int count = 5)
+        {
+            try
+            {
+                var operations = await _context.StockOperations
+                    .Include(o => o.Product)
+                    .Include(o => o.Warehouse)
+                    .Include(o => o.Brand)
+                    .Include(o => o.CostCenter)
+                    .OrderByDescending(o => o.OperationDate)
+                    .Take(count)
+                    .Select(o => new StockOperationDto
+                    {
+                        Id = o.Id,
+                        ProductName = o.Product.Name,
+                        WarehouseName = o.Warehouse.Name,
+                        BrandName = o.Brand.Name,
+                        Quantity = o.Quantity,
+                        OperationType = o.OperationType,
+                        CostCenterName = o.CostCenter != null ? o.CostCenter.Name : null,
+                        Reason = o.Reason,
+                        OperationDate = o.OperationDate
+                    })
+                    .ToListAsync();
+
+                return Ok(operations);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "خطا در دریافت عملیات اخیر");
+            }
+        }
+
+        // GET: api/StockOperations/today
+        [HttpGet("today")]
+        public async Task<IActionResult> GetTodayOperations()
+        {
+            try
+            {
+                var today = DateTime.Today;
+                var operations = await _context.StockOperations
+                    .Where(o => o.OperationDate.Date == today)
+                    .ToListAsync();
+
+                return Ok(operations);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "خطا در دریافت عملیات امروز");
+            }
+        }
+
     }
 }

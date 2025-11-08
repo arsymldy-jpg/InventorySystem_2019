@@ -15,7 +15,7 @@ namespace Inventory_Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper, Roles.Storekeeper)]
+    [AuthorizeRole(Roles.Admin, Roles.SeniorUser, Roles.SeniorStorekeeper, Roles.Storekeeper,Roles.Viewer)]
     public class WarehouseAccessController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -29,7 +29,6 @@ namespace Inventory_Api.Controllers
 
         // GET: api/WarehouseAccess/user/5
         [HttpGet("user/{userId}")]
-        [AuthorizeRole(Roles.Storekeeper)]
         public async Task<ActionResult<IEnumerable<WarehouseAccessDto>>> GetUserWarehouseAccess(int userId)
         {
             var accessList = await _context.WarehouseAccesses
